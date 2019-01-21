@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-
+{-# LANGUAGE MagicHash #-}
 module Cardano.Prelude.HeapWords
   ( HeapWords(..)
   , heapSizeMb
@@ -40,7 +40,10 @@ import qualified Data.Set as Set
 import Data.Time (Day, UTCTime)
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as V.U
-
+import GHC.Integer.GMP.Internals (BigNat(BN#))
+import GHC.Natural (Natural(NatS#, NatJ#))
+import GHC.Prim (sizeofByteArray#)
+import GHC.Types (Int(I#))
 
 --------------------------------------------------------------------------------
 -- HeapWords class and instances
@@ -453,3 +456,35 @@ instance HeapWords e => HeapWords (V.Vector e) where
 
 heapWordsUVector :: V.U.Unbox e => Int -> V.U.Vector e -> Int
 heapWordsUVector sz a = 5 + (V.U.length a * sz) `div` wordSize
+
+instance HeapWords Natural where
+  heapWords (NatS# _)
+    -- We have
+    --
+    -- > NatS# GmpLimb#
+    -- > type GmpLimb# = Word#
+    --
+    -- so @(NatS# n)@ requires:
+    --
+    -- - one word for the header
+    -- - one word to store the unboxed word.
+    --
+    = 1 + 1
+  heapWords (NatJ# (BN# arr))
+    -- We have
+    --
+    -- > NatJ# {-# UNPACK #-} !BigNat
+    -- > data BigNat = BN# ByteArray#
+    --
+    -- so @NatJ# (BN# xs)@ requires:
+    --
+    -- - one word for the header
+    -- - one word for storing the header of @BN#@
+    -- - the number of bytes in the byte array
+    --
+    = 1 + 1 + arrWords (I# (sizeofByteArray# arr))
+    where
+      arrWords n
+        | n <= 0 = 0
+        | 0 < n = 1 + ((n - 1) `div` wordSize)
+        | otherwise = 0 -- Needed to keep avoid the non-exhaustive patters warning.
