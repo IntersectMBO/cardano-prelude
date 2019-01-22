@@ -485,6 +485,5 @@ instance HeapWords Natural where
     = 1 + 1 + arrWords (I# (sizeofByteArray# arr))
     where
       arrWords n
-        | n <= 0 = 0
         | 0 < n = 1 + ((n - 1) `div` wordSize)
         | otherwise = 0 -- Needed to keep avoid the non-exhaustive patters warning.
