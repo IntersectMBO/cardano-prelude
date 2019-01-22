@@ -487,4 +487,4 @@ instance HeapWords Natural where
     where
       arrWords n
         | 0 < n = 1 + ((n - 1) `div` wordSize)
-        | otherwise = 0 -- Needed to keep avoid the non-exhaustive patters warning.
+        | otherwise = 0
