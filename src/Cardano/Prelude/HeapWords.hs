@@ -21,6 +21,7 @@ module Cardano.Prelude.HeapWords
   , heapWords13
   , heapWordsUArray
   , heapWordsUVector
+  , heapWordsUnpacked
   )
 where
 
@@ -43,7 +44,7 @@ import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as V.U
 import GHC.Integer.GMP.Internals (BigNat(BN#))
 import GHC.Natural (Natural(NatS#, NatJ#))
-import GHC.Prim (sizeofByteArray#)
+import GHC.Prim (ByteArray#, sizeofByteArray#)
 import GHC.Types (Int(I#))
 
 --------------------------------------------------------------------------------
@@ -467,8 +468,8 @@ instance HeapWords Natural where
     --
     -- so @(NatS# n)@ requires:
     --
-    -- - one word for the header
-    -- - one word to store the unboxed word.
+    -- - 1 word for the header 'NatS#' object header
+    -- - 1 word for the single 'NatS#' unboxed field, of type 'Word#'
     --
     = 1 + 1
   heapWords (NatJ# (BN# arr))
@@ -479,12 +480,29 @@ instance HeapWords Natural where
     --
     -- so @NatJ# (BN# xs)@ requires:
     --
-    -- - one word for the header
-    -- - one word for storing the header of @BN#@
-    -- - the number of bytes in the byte array
+    -- - 1 word for the 'NatJ#' object header
+    -- - 1 word for the 'NatJ#' pointer field of type 'ByteArray#'
+    -- - the words used by the byte array.
     --
-    = 1 + 1 + arrWords (I# (sizeofByteArray# arr))
-    where
-      arrWords n
-        | 0 < n = 1 + ((n - 1) `div` wordSize)
-        | otherwise = 0
+    = 1 + 1 + heapWordsByteArray# arr
+
+-- | Calculate the heap words required to store a 'ByteArray#' object.
+--
+heapWordsByteArray# :: ByteArray# -> Int
+heapWordsByteArray# ba#
+  = 2                            -- 2 for the 'ByteArray#' heap object (1 for header, and 1 for storing its size)
+  + 1 + ((n - 1) `div` wordSize) -- for the variable sized part
+  where
+    n = I# (sizeofByteArray# ba#)
+
+-- | Calculate the number of heap words used by a field unpacked within another
+-- constructor.
+--
+-- This function simply subtracts 2 from the 'heapWords' result of its
+-- parameter, since in the case of an unpacked field we _do not_ have to use:
+--
+-- - a word for the pointer to the inner structure.
+-- - a word for the constructor that is being unpacked.
+--
+heapWordsUnpacked :: HeapWords a => a -> Int
+heapWordsUnpacked x = heapWords x - 2
