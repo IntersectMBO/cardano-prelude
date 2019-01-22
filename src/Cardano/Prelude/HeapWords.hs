@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MagicHash #-}
+
 module Cardano.Prelude.HeapWords
   ( HeapWords(..)
   , heapSizeMb
