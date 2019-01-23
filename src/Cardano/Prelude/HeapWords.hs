@@ -524,14 +524,14 @@ instance HeapWords BigNat where
 -- | Calculate the heap words required to store a 'ByteArray#' object.
 --
 heapWordsByteArray# :: ByteArray# -> Int
-heapWordsByteArray# ba#
+heapWordsByteArray# ba# =
+  2                               -- 2 for the 'ByteArray#' heap object (1 for header, and 1 for storing its size)
+    + 1
+    + ((nbytes - 1) `div` wordSize) -- for the variable sized part (@n@ in the diagram above)
   --        ┌───┬───┬───┬─┈   ┈─┬───┐
   --        │BA#│ sz│   │       │   │   2 + n Words
   --        └───┴───┴───┴─┈   ┈─┴───┘
-  = 2                                 -- 2 for the 'ByteArray#' heap object (1 for header, and 1 for storing its size)
-  + 1 + ((nbytes - 1) `div` wordSize) -- for the variable sized part (@n@ in the diagram above)
-  where
-    nbytes = I# (sizeofByteArray# ba#)
+  where nbytes = I# (sizeofByteArray# ba#)
 
 -- | Calculate the number of heap words used by a field unpacked within another
 -- constructor.
