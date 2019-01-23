@@ -471,29 +471,67 @@ instance HeapWords Natural where
     -- - 1 word for the header 'NatS#' object header
     -- - 1 word for the single 'NatS#' unboxed field, of type 'Word#'
     --
+    -- ┌─────┬───────┐
+    -- │NatS#│ Word#'│
+    -- └─────┴───────┘
+    --
     = 1 + 1
-  heapWords (NatJ# (BN# arr))
+  heapWords (NatJ# bn)
     -- We have
     --
     -- > NatJ# {-# UNPACK #-} !BigNat
-    -- > data BigNat = BN# ByteArray#
     --
-    -- so @NatJ# (BN# xs)@ requires:
+    -- so @NatJ# bn@ requires:
     --
     -- - 1 word for the 'NatJ#' object header
-    -- - 1 word for the 'NatJ#' pointer field of type 'ByteArray#'
-    -- - the words used by the byte array.
+    -- - 1 word for the pointer to the byte array object
+    -- - the heap words required by the byte array object
     --
-    = 1 + 1 + heapWordsByteArray# arr
+    -- Note that for the sake of uniformity, we use 'heapWordsUnpacked' to
+    -- account for the level of indirection removed by the @UNPACK@ pragma.
+    --
+    -- ┌─────┬───┐
+    -- │NatJ#│ ◉ │
+    -- └─────┴─╂─┘
+    --         ▼
+    --        ┌───┬───┬───┬─┈   ┈─┬───┐
+    --        │BA#│ sz│   │       │   │   2 + n Words
+    --        └───┴───┴───┴─┈   ┈─┴───┘
+    --
+    = 1 + 1 + heapWordsUnpacked bn
+
+instance HeapWords BigNat where
+  heapWords (BN# arr) =
+    -- We have
+    --
+    -- > data BigNat = BN# ByteArray#
+    --
+    -- so @BN# ByteArray#@ requires:
+    --
+    -- - 1 word for the @BN#@ object header
+    -- - 1 word for the pointer to the byte array
+    -- - the words used by the byte array (see 'heapWordsByteArray#').
+    --
+    -- ┌──────┬───┐
+    -- │BigNat│ ◉ │
+    -- └──────┴─╂─┘
+    --          ▼
+    --        ┌───┬───┬───┬─┈   ┈─┬───┐
+    --        │BA#│ sz│   │       │   │   2 + n Words
+    --        └───┴───┴───┴─┈   ┈─┴───┘
+    1 + 1 + heapWordsByteArray# arr
 
 -- | Calculate the heap words required to store a 'ByteArray#' object.
 --
 heapWordsByteArray# :: ByteArray# -> Int
 heapWordsByteArray# ba#
-  = 2                            -- 2 for the 'ByteArray#' heap object (1 for header, and 1 for storing its size)
-  + 1 + ((n - 1) `div` wordSize) -- for the variable sized part
+  --        ┌───┬───┬───┬─┈   ┈─┬───┐
+  --        │BA#│ sz│   │       │   │   2 + n Words
+  --        └───┴───┴───┴─┈   ┈─┴───┘
+  = 2                                 -- 2 for the 'ByteArray#' heap object (1 for header, and 1 for storing its size)
+  + 1 + ((nbytes - 1) `div` wordSize) -- for the variable sized part (@n@ in the diagram above)
   where
-    n = I# (sizeofByteArray# ba#)
+    nbytes = I# (sizeofByteArray# ba#)
 
 -- | Calculate the number of heap words used by a field unpacked within another
 -- constructor.
