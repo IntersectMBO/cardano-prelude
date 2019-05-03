@@ -41,7 +41,12 @@ library
                      , bytestring
                      , canonical-json
                      , cborg
-                     , containers
+
+                     -- Need this when cardano-prelude becomes a dependency of
+                     -- cardano-ledger, because cabal is not smart enough to
+                     -- figure out that canonical-json implies containers < 0.6.
+                     , containers            < 0.6
+
                      , formatting
                      , ghc-heap
                      , ghc-prim
