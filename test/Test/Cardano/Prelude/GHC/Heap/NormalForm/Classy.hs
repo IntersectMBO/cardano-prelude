@@ -169,23 +169,31 @@ instance FromModel a => FromModel [a] where
       ListThunk (Model [a])
     | ListNil
     | ListCons (Model a) (Model [a])
+    | ListForceElems (Model [a])
 
   modelIsNF ctxt = \case
-      ListThunk _    -> NotWHNF ctxt'
-      ListNil        -> IsNF
-      ListCons x xs' -> constrNF [modelIsNF ctxt' x, modelIsNF ctxt xs']
+      ListThunk _       -> NotWHNF ctxt'
+      ListNil           -> IsNF
+      ListCons x xs'    -> constrNF [modelIsNF ctxt' x, modelIsNF ctxt xs']
+      ListForceElems _  -> IsNF
     where
       ctxt' = "[]" : ctxt
 
-  fromModel (ListThunk xs)  k = fromModel xs $ \xs' -> k (if ack 3 3 > 0 then xs' else xs')
-  fromModel ListNil         k = k []
-  fromModel (ListCons x xs) k = fromModel x  $ \x'  ->
-                                fromModel xs $ \xs' ->
-                                k (x' : xs')
+  fromModel (ListThunk xs)      k = fromModel xs $ \xs' -> k (if ack 3 3 > 0 then xs' else xs')
+  fromModel ListNil             k = k []
+  fromModel (ListCons x xs)     k = fromModel x  $ \x'  ->
+                                    fromModel xs $ \xs' ->
+                                    k (x' : xs')
+  fromModel (ListForceElems xs) k = fromModel xs $ \xs' ->
+                                    let whnfXs = forceElemsToWHNF xs'
+                                    in whnfXs `seq` k whnfXs
 
   genModel = do
       sz <- Gen.int $ Range.linear 0 10
-      go sz
+      forceElems <- Gen.bool
+      if forceElems
+        then ListForceElems <$> go sz
+        else go sz
     where
       go :: Int -> Gen (Model [a])
       go 0 = pure ListNil
