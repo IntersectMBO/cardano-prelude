@@ -52,6 +52,10 @@ class (NoUnexpectedThunks a, Show (Model a)) => FromModel a where
   -- | Does the model describe a value in NF?
   modelIsNF :: [String] -> Model a -> IsNormalForm [String]
 
+  -- | Convert the model to one that represents its equivalent in weak head
+  -- normal form.
+  toWHNFModel :: Model a -> Model a
+
   -- | Context as it should be returned by 'noUnexpectedThunks'
   --
   -- This has a default implementation in terms of 'modelIsNF': there are
@@ -125,6 +129,9 @@ instance FromModel Int where
     where
       ctxt' = "Int" : ctxt
 
+  toWHNFModel (IntThunk i) = toWHNFModel i
+  toWHNFModel m            = m
+
   fromModel (IntThunk i) k = fromModel i $ \i' -> k (if ack 3 3 > 0 then i' else i')
   fromModel (IntValue n) k = case n of I# result -> k (I# result)
 
@@ -147,6 +154,9 @@ instance (FromModel a, FromModel b) => FromModel (a, b) where
       PairDefined a b -> constrNF [modelIsNF ctxt' a, modelIsNF ctxt' b]
     where
       ctxt' = "(,)" : ctxt
+
+  toWHNFModel (PairThunk p) = toWHNFModel p
+  toWHNFModel m             = m
 
   fromModel (PairThunk p)     k = fromModel p $ \p' -> k (if ack 3 3 > 0 then p' else p')
   fromModel (PairDefined a b) k = fromModel a $ \a' ->
@@ -175,9 +185,20 @@ instance FromModel a => FromModel [a] where
       ListThunk _       -> NotWHNF ctxt'
       ListNil           -> IsNF
       ListCons x xs'    -> constrNF [modelIsNF ctxt' x, modelIsNF ctxt xs']
-      ListForceElems _  -> IsNF
+      ListForceElems xs -> modelIsNF ctxt (forceModelElemsToWHNF xs)
     where
       ctxt' = "[]" : ctxt
+
+      forceModelElemsToWHNF :: Model [a] -> Model [a]
+      forceModelElemsToWHNF m = case m of
+        ListThunk xs      -> forceModelElemsToWHNF (toWHNFModel xs)
+        ListNil           -> ListNil
+        ListCons x xs     -> ListCons (toWHNFModel x) (forceModelElemsToWHNF xs)
+        ListForceElems xs -> ListForceElems (forceModelElemsToWHNF xs)
+
+  toWHNFModel (ListThunk xs)      = toWHNFModel xs
+  toWHNFModel (ListForceElems xs) = ListForceElems (toWHNFModel xs)
+  toWHNFModel m                   = m
 
   fromModel (ListThunk xs)      k = fromModel xs $ \xs' -> k (if ack 3 3 > 0 then xs' else xs')
   fromModel ListNil             k = k []
@@ -217,6 +238,8 @@ instance FromModel (Seq Int) where
       SeqEnqueue x xs -> constrNF [modelIsNF ctxt' x, modelIsNF ctxt xs]
     where
       ctxt' = "Seq" : ctxt
+
+  toWHNFModel m = m
 
   fromModel m = \k -> go m $ \s -> forceSeqToWhnf s k
     where
@@ -335,6 +358,13 @@ instance FromModel (Int -> Int) where
         IsWHNF  _ -> Nothing
         NotWHNF c -> Just c
 
+  toWHNFModel FnInNF = FnInNF
+  toWHNFModel (FnNotInNF b n) = FnNotInNF b n
+  toWHNFModel (FnNotInWHNF f) = toWHNFModel f
+  -- We will leave the model as is since 'FnToWHNF' represents a function to
+  -- be forced to WHNF.
+  toWHNFModel (FnToWHNF f) = FnToWHNF f
+
   modelIsNF ctxt = \case
       FnInNF        -> IsNF
       FnNotInNF _ _ -> IsWHNF ctxt'
@@ -394,6 +424,7 @@ instance FromModel (IO ()) where
 
   modelUnexpected ctxt (ModelIO f) = fnToIOContext <$> modelUnexpected ctxt f
   modelIsNF       ctxt (ModelIO f) = fnToIOContext <$> modelIsNF       ctxt f
+  toWHNFModel m = m
   genModel = ModelIO <$> genModel
 
 fnToIOContext :: [String] -> [String]
@@ -415,6 +446,7 @@ instance FromModel (ThunkFree "->" (Int -> Int)) where
   genModel = ThunkFreeFn <$> genModel
   fromModel (ThunkFreeFn f) k = fromModel f $ \f' -> k (ThunkFree f')
   modelIsNF ctxt (ThunkFreeFn f) = modelIsNF ctxt f
+  toWHNFModel (ThunkFreeFn f) = ThunkFreeFn (toWHNFModel f)
 
   modelUnexpected ctxt m =
       case modelIsNF ctxt m of
@@ -432,6 +464,8 @@ instance FromModel (ThunkFree "IO" (IO ())) where
       fromModel (ModelIO m) $ \f -> k (ThunkFree f)
   modelIsNF ctxt (ThunkFreeIO f) =
       fnToIOContext <$> modelIsNF ctxt (ThunkFreeFn f)
+  toWHNFModel (ThunkFreeIO f) =
+      ThunkFreeIO (toWHNFModel f)
   modelUnexpected ctxt (ThunkFreeIO f) =
       fnToIOContext <$> modelUnexpected ctxt (ThunkFreeFn f)
 
@@ -445,6 +479,7 @@ instance (FromModel a, Typeable a) => FromModel (UseIsNormalForm a) where
   genModel       = Wrap <$> genModel
   modelUnexpected ctxt = modelUnexpected ctxt . unwrap
   modelIsNF ctxt = modelIsNF ctxt . unwrap
+  toWHNFModel (Wrap m) = Wrap (toWHNFModel m)
   fromModel m k  = fromModel (unwrap m) $ \x -> k (UseIsNormalForm x)
 
 deriving instance Show (Model a) => Show (Model (UseIsNormalForm a))
