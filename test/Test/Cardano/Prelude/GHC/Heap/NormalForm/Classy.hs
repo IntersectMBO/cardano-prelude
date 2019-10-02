@@ -548,14 +548,14 @@ testGroup = Group "Test.Cardano.Prelude.GHC.Heap.NormalForm.Classy" [
     , ("prop_isNormalForm_Int"        ,                 testWithModel agreeOnNF $ Proxy @(UseIsNormalForm Int))
     , ("prop_isNormalForm_IntInt"     ,                 testWithModel agreeOnNF $ Proxy @(UseIsNormalForm (Int, Int)))
     , ("prop_isNormalForm_ListInt"    ,                 testWithModel agreeOnNF $ Proxy @(UseIsNormalForm [Int]))
+    , ("prop_isNormalForm ListIntInt" ,                 testWithModel agreeOnNF $ Proxy @(UseIsNormalForm [(Int, Int)]))
     , ("prop_isNormalForm_IntListInt" ,                 testWithModel agreeOnNF $ Proxy @(UseIsNormalForm (Int, [Int])))
     , ("prop_isNormalForm_SeqInt"     , expectFailure $ testWithModel agreeOnNF $ Proxy @(UseIsNormalForm (Seq Int)))
-
-    -- TODO: add list of pairs tests
 
     , ("prop_noUnexpectedThunks_Int"        , testWithModel agreeOnContext $ Proxy @Int)
     , ("prop_noUnexpectedThunks_IntInt"     , testWithModel agreeOnContext $ Proxy @(Int, Int))
     , ("prop_noUnexpectedThunks_ListInt"    , testWithModel agreeOnContext $ Proxy @[Int])
+    , ("prop_noUnexpectedThunks_ListIntInt" , testWithModel agreeOnContext $ Proxy @[(Int, Int)])
     , ("prop_noUnexpectedThunks_IntListInt" , testWithModel agreeOnContext $ Proxy @(Int, [Int]))
     , ("prop_noUnexpectedThunks_SeqInt"     , testWithModel agreeOnContext $ Proxy @(Seq Int))
 
