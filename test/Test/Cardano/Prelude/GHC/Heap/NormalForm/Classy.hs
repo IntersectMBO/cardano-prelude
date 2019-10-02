@@ -369,23 +369,7 @@ instance FromModel (Int -> Int) where
       FnInNF        -> IsNF
       FnNotInNF _ _ -> IsWHNF ctxt'
       FnNotInWHNF _ -> NotWHNF ctxt'
-      FnToWHNF f    ->
-        case f of
-          -- Forcing a function already in NF leaves it in NF
-          FnInNF         -> IsNF
-
-          -- Forcing a function which is already in WHNF (but not in NF)
-          -- leaves it in WHNF
-          FnNotInNF _ _  -> IsWHNF ctxt'
-
-          -- Forcing a computation reveals what's underneath it.
-          -- We leave the 'FnToWHNF' constructor at the top because
-          -- It doens't matter quite how many computations are underneath,
-          -- a single force forces them all.
-          FnNotInWHNF f' -> modelIsNF ctxt (FnToWHNF f')
-
-          -- Forcing twice is the same as forcing once
-          FnToWHNF f'    -> modelIsNF ctxt (FnToWHNF f')
+      FnToWHNF f    -> modelIsNF ctxt (toWHNFModel f)
     where
       ctxt' = ("->" : ctxt)
 
