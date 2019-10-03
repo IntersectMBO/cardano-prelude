@@ -28,27 +28,27 @@ module Cardano.Prelude.GHC.Heap.NormalForm.Classy (
   , AllowThunk(..)
   ) where
 
-import Cardano.Prelude.Base
+import           Cardano.Prelude.Base
 
-import Data.Foldable (toList)
-import Data.Sequence (Seq)
-import Data.List.NonEmpty (NonEmpty)
-import Data.Time
-import GHC.Exts.Heap
-import Prelude (String)
+import           Data.Foldable                       (toList)
+import           Data.List.NonEmpty                  (NonEmpty)
+import           Data.Sequence                       (Seq)
+import           Data.Time
+import           GHC.Exts.Heap
+import           Prelude                             (String)
 
-import qualified Data.ByteString as BS.Strict
-import qualified Data.ByteString.Lazy as BS.Lazy
-import qualified Data.IntMap as IntMap
-import qualified Data.Map as Map
-import qualified Data.Set as Set
-import qualified Data.Text as Text.Strict
-import qualified Data.Text.Lazy as Text.Lazy
-import qualified Data.Vector as Vector.Boxed
-import qualified Data.Vector.Unboxed as Vector.Unboxed
+import qualified Data.ByteString                     as BS.Strict
+import qualified Data.ByteString.Lazy                as BS.Lazy
+import qualified Data.IntMap                         as IntMap
+import qualified Data.Map                            as Map
+import qualified Data.Set                            as Set
+import qualified Data.Text                           as Text.Strict
+import qualified Data.Text.Lazy                      as Text.Lazy
+import qualified Data.Vector                         as Vector.Boxed
+import qualified Data.Vector.Unboxed                 as Vector.Unboxed
 
-import Cardano.Prelude.GHC.Heap.Tree
 import qualified Cardano.Prelude.GHC.Heap.NormalForm as NF
+import           Cardano.Prelude.GHC.Heap.Tree
 
 {-------------------------------------------------------------------------------
   Check a value for unexpected thunks
@@ -84,19 +84,32 @@ class NoUnexpectedThunks a where
   --
   -- See also discussion of caveats listed for 'NF.isNormalForm'.
   noUnexpectedThunks :: HasCallStack => [String] -> a -> IO ThunkInfo
-  noUnexpectedThunks ctxt x = do
-      c   <- getBoxedClosureData (asBox x)
-      hnf <- NF.isHeadNormalForm c
-      if hnf
-        then whnfNoUnexpectedThunks ctxt' x
-        else return $ UnexpectedThunk UnexpectedThunkInfo {
-                          unexpectedThunkContext   = ctxt'
-                        , unexpectedThunkCallStack = callStack
-                        , unexpectedThunkClosure   = Just (renderClosure c)
-                        }
+  noUnexpectedThunks ctxt x
+    | length ctxt' <= maxContextLength = do
+        c   <- getBoxedClosureData (asBox x)
+        hnf <- NF.isHeadNormalForm c
+        if hnf
+          then whnfNoUnexpectedThunks ctxt' x
+          else return $ UnexpectedThunk UnexpectedThunkInfo {
+                            unexpectedThunkContext   = ctxt'
+                          , unexpectedThunkCallStack = callStack
+                          , unexpectedThunkClosure   = Just (renderClosure c)
+                          }
+    | otherwise = do
+        return $ UnexpectedThunk UnexpectedThunkInfo {
+            unexpectedThunkContext   = "<<loop?>>" : ctxt'
+          , unexpectedThunkCallStack = callStack
+          , unexpectedThunkClosure   = Nothing
+          }
     where
       ctxt' :: [String]
       ctxt' = showTypeOf (Proxy @a) : ctxt
+
+      -- If we exceed the maximum context length, it is likely that there is a
+      -- loop in a 'NoUnexpectedContext' instance somewhere; it is unlikely that
+      -- a type is so complicated it exceeds the maximum context length.
+      maxContextLength :: Int
+      maxContextLength = 1000
 
   -- | Check that the argument is in normal form, assuming it is in WHNF.
   --
