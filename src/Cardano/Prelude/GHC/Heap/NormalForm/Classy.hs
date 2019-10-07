@@ -28,27 +28,27 @@ module Cardano.Prelude.GHC.Heap.NormalForm.Classy (
   , AllowThunk(..)
   ) where
 
-import           Cardano.Prelude.Base
+import Cardano.Prelude.Base
 
-import           Data.Foldable                       (toList)
-import           Data.List.NonEmpty                  (NonEmpty)
-import           Data.Sequence                       (Seq)
-import           Data.Time
-import           GHC.Exts.Heap
-import           Prelude                             (String)
+import Data.Foldable (toList)
+import Data.List.NonEmpty (NonEmpty)
+import Data.Sequence (Seq)
+import Data.Time
+import GHC.Exts.Heap
+import Prelude (String)
 
-import qualified Data.ByteString                     as BS.Strict
-import qualified Data.ByteString.Lazy                as BS.Lazy
-import qualified Data.IntMap                         as IntMap
-import qualified Data.Map                            as Map
-import qualified Data.Set                            as Set
-import qualified Data.Text                           as Text.Strict
-import qualified Data.Text.Lazy                      as Text.Lazy
-import qualified Data.Vector                         as Vector.Boxed
-import qualified Data.Vector.Unboxed                 as Vector.Unboxed
+import qualified Data.ByteString as BS.Strict
+import qualified Data.ByteString.Lazy as BS.Lazy
+import qualified Data.IntMap as IntMap
+import qualified Data.Map as Map
+import qualified Data.Set as Set
+import qualified Data.Text as Text.Strict
+import qualified Data.Text.Lazy as Text.Lazy
+import qualified Data.Vector as Vector.Boxed
+import qualified Data.Vector.Unboxed as Vector.Unboxed
 
 import qualified Cardano.Prelude.GHC.Heap.NormalForm as NF
-import           Cardano.Prelude.GHC.Heap.Tree
+import Cardano.Prelude.GHC.Heap.Tree
 
 {-------------------------------------------------------------------------------
   Check a value for unexpected thunks
