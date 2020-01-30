@@ -30,6 +30,11 @@ let
   # nixTools contains all the haskell binaries and libraries built by haskell.nix
   nixTools = import ./nix/nix-tools.nix {};
   # scripts contains startup scripts for proxy
+  haskell_nix = pkgs.fetchgit (builtins.removeAttrs (builtins.fromJSON (builtins.readFile "${sources.iohk-nix}/pins/haskell-nix.json")) [ "date" ]);
+  haskell = pkgs.callPackage haskell_nix {
+    hackageSourceJSON = ./nix/hackage-nix.json;
+  };
 in {
   inherit (nixTools) nix-tools;
 }
+
