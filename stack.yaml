@@ -4,5 +4,7 @@ packages:
   - .
   - test
 
+ghc-options: -Wall -Werror-redundant-constraints
+
 nix:
   shell-file: ./nix/stack-shell.nix
