@@ -25,13 +25,16 @@
 # A Hydra option
 , scrubJobs ? true
 
-# Import IOHK common nix lib
-, commonLib ? import ./lib.nix {}
+# Dependencies overrides
+, sourcesOverride ? {}
+
+# Import pkgs, including IOHK common nix lib
+, pkgs ? import ./nix { inherit sourcesOverride; }
 
 }:
 
-with (import commonLib.iohkNix.release-lib) {
-  inherit (commonLib) pkgs;
+with (import pkgs.iohkNix.release-lib) {
+  inherit pkgs;
   inherit supportedSystems supportedCrossSystems scrubJobs projectArgs;
   packageSet = import cardano-prelude;
   gitrev = cardano-prelude.rev;

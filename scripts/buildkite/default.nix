@@ -1,22 +1,17 @@
-{ system ? builtins.currentSystem
-, config ? {}
-, pkgs ? import (import ../nix/fetch-nixpkgs.nix) { inherit system config; }
-, buildTools ? with pkgs; [ git nix gnumake ]
-}:
-
-with pkgs.lib;
-with pkgs;
+with import ../../nix {};
 
 let
-  cache-s3 = callPackage ./cache-s3.nix {};
-
+  stack-hpc-coveralls = iohkNix.stack-hpc-coveralls;
   stackRebuild = runCommand "stack-rebuild" {} ''
     ${haskellPackages.ghcWithPackages (ps: [ps.turtle ps.safe ps.transformers])}/bin/ghc -o $out ${./rebuild.hs}
   '';
 
+  buildTools =
+    [ git nix gnumake stack gnused gnutar coreutils stack-hpc-coveralls systemd gzip ];
+
 in
   writeScript "stack-rebuild-wrapped" ''
     #!${stdenv.shell}
-    export PATH=${lib.makeBinPath ([ cache-s3 stack gnused coreutils ] ++ buildTools)}
+    export PATH=${lib.makeBinPath buildTools}
     exec ${stackRebuild} "$@"
   ''
