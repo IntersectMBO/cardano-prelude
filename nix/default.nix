@@ -1,49 +1,46 @@
 { system ? builtins.currentSystem
 , crossSystem ? null
-# allows to customize haskellNix (ghc and profiling, see ./nix/haskell.nix)
 , config ? {}
-# allows to override dependencies of the project without modifications,
-# eg. to test build against local checkout of nixpkgs and iohk-nix:
-# nix build -f default.nix cardano-prelude --arg sourcesOverride '{
-#   iohk-nix = ../iohk-nix;
-# }'
 , sourcesOverride ? {}
-# pinned version of nixpkgs augmented with overlays (iohk-nix and our packages).
-, pkgs ? import ./nix { inherit system crossSystem config sourcesOverride; }
-, gitrev ? pkgs.iohkNix.commitIdFromGitRepoOrZero ./.git
 }:
-with pkgs; with commonLib;
 let
+  sources = import ./sources.nix { inherit pkgs; }
+    // sourcesOverride;
+  iohKNix = import sources.iohk-nix {};
+  haskellNix = import sources."haskell.nix";
+  # use our own nixpkgs if it exists in our sources,
+  # otherwise use iohkNix default nixpkgs.
+  nixpkgs = if (sources ? nixpkgs)
+    then (builtins.trace "Not using IOHK default nixpkgs (use 'niv drop nixpkgs' to use default for better sharing)"
+      sources.nixpkgs)
+    else (builtins.trace "Using IOHK default nixpkgs"
+      iohKNix.nixpkgs);
 
-  # we are only interested in listing the project packages
-  haskellPackages = selectProjectPackages cardanoPreludeHaskellPackages;
+  # for inclusion in pkgs:
+  overlays =
+    # Haskell.nix (https://github.com/input-output-hk/haskell.nix)
+    haskellNix.overlays
+    # haskell-nix.haskellLib.extra: some useful extra utility functions for haskell.nix
+    ++ iohKNix.overlays.haskell-nix-extra
+    # iohkNix: nix utilities and niv:
+    ++ iohKNix.overlays.iohkNix
+    # our own overlays:
+    ++ [
+      (pkgs: _: with pkgs; {
 
-  # NixOS tests run a proxy and validate it listens
-  nixosTests = import ./nix/nixos/tests {
-    inherit pkgs;
+        # commonLib: mix pkgs.lib with iohk-nix utils and our own:
+        commonLib = lib // iohkNix
+          // import ./util.nix { inherit haskell-nix; }
+          # also expose our sources and overlays
+          // { inherit overlays sources; };
+      })
+      # And, of course, our haskell-nix-ified cabal project:
+      (import ./pkgs.nix)
+    ];
+
+  pkgs = import nixpkgs {
+    inherit system crossSystem overlays;
+    config = haskellNix.config // config;
   };
 
-  self = {
-    inherit haskellPackages nixosTests;
-
-    #inherit (haskellPackages.cardano-prelude.identifier) version;
-    # Grab the executable component of our package.
-    #inherit (haskellPackages.cardano-prelude.components.exes)
-    #  cardano-prelude;
-
-    # `tests` are the test suites which have been built.
-    tests = collectComponents' "tests" haskellPackages;
-    # `benchmarks` (only built, not run).
-    benchmarks = collectComponents' "benchmarks" haskellPackages;
-
-    checks = recurseIntoAttrs {
-      # `checks.tests` collect results of executing the tests:
-      tests = collectChecks haskellPackages;
-    };
-
-    shell = import ./shell.nix {
-      inherit pkgs;
-      withHoogle = true;
-    };
-};
-in self
+in pkgs
