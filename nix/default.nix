@@ -4,43 +4,26 @@
 , sourcesOverride ? {}
 }:
 let
-  sources = import ./sources.nix { inherit pkgs; }
+  # use default stable nixpkgs from iohk-nix instead of our own:
+  sources = removeAttrs (import ./sources.nix) [ "nixpkgs" ]
     // sourcesOverride;
-  iohKNix = import sources.iohk-nix {};
-  haskellNix = import sources."haskell.nix";
-  # use our own nixpkgs if it exists in our sources,
-  # otherwise use iohkNix default nixpkgs.
-  nixpkgs = if (sources ? nixpkgs)
-    then (builtins.trace "Not using IOHK default nixpkgs (use 'niv drop nixpkgs' to use default for better sharing)"
-      sources.nixpkgs)
-    else (builtins.trace "Using IOHK default nixpkgs"
-      iohKNix.nixpkgs);
 
   # for inclusion in pkgs:
-  overlays =
-    # Haskell.nix (https://github.com/input-output-hk/haskell.nix)
-    haskellNix.overlays
-    # haskell-nix.haskellLib.extra: some useful extra utility functions for haskell.nix
-    ++ iohKNix.overlays.haskell-nix-extra
-    # iohkNix: nix utilities and niv:
-    ++ iohKNix.overlays.iohkNix
-    # our own overlays:
-    ++ [
-      (pkgs: _: with pkgs; {
+  nixpkgsOverlays = [
+    (pkgs: _: with pkgs; {
 
-        # commonLib: mix pkgs.lib with iohk-nix utils and our own:
-        commonLib = lib // iohkNix
-          // import ./util.nix { inherit haskell-nix; }
-          # also expose our sources and overlays
-          // { inherit overlays sources; };
-      })
-      # And, of course, our haskell-nix-ified cabal project:
-      (import ./pkgs.nix)
-    ];
+      # mix of pkgs.lib with iohk-nix utils and our own:
+      commonLib = lib // iohkNix // iohkNix.cardanoLib //
+        import ./util.nix { inherit haskell-nix; };
 
-  pkgs = import nixpkgs {
-    inherit system crossSystem overlays;
-    config = haskellNix.config // config;
-  };
+      svcLib = import ./svclib.nix { inherit pkgs; };
+    })
+    # Our haskell-nix-ified cabal project:
+    (import ./pkgs.nix)
+  ];
 
-in pkgs
+  # IOHK pkgs that include haskell-nix overlays, using our sources as override:
+in (import sources.iohk-nix {
+    inherit system crossSystem config nixpkgsOverlays;
+    sourcesOverride = sources;
+  }).pkgs
