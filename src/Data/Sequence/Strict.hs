@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns               #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE PatternSynonyms            #-}
@@ -55,8 +56,10 @@ module Data.Sequence.Strict
   , findIndicesR
   ) where
 
-import           Cardano.Prelude (NoUnexpectedThunks (..), forceElemsToWHNF,
+import           Cardano.Prelude (CanonicalExamples, Generic,
+                     NoUnexpectedThunks (..), Typeable, forceElemsToWHNF,
                      noUnexpectedThunksInValues)
+import           Cardano.Prelude.CanonicalExamples.Orphans ()
 import           Prelude hiding (drop, length, lookup, null, scanl, splitAt,
                      take)
 
@@ -83,7 +86,7 @@ infixl 5 :|>
 -- wrap the original "Data.Sequence" functions while forcing the provided
 -- value to WHNF.
 newtype StrictSeq a = StrictSeq { getSeq :: Seq a }
-  deriving stock (Eq, Ord, Show)
+  deriving stock (Eq, Ord, Show, Generic)
   deriving newtype (Foldable, Semigroup, Serialise)
 
 instance Functor StrictSeq where
@@ -99,6 +102,8 @@ instance Traversable StrictSeq where
 instance NoUnexpectedThunks a => NoUnexpectedThunks (StrictSeq a) where
   showTypeOf _ = "StrictSeq"
   whnfNoUnexpectedThunks ctxt = noUnexpectedThunksInValues ctxt . toList
+
+instance (Typeable a, CanonicalExamples a) => CanonicalExamples (StrictSeq a)
 
 -- | A helper function for the ':<|' pattern.
 --
