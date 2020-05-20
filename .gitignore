@@ -5,6 +5,7 @@
 dist-newstyle/
 cabal.project.local
 .ghc.environment.*
+stack.yaml.lock
 
 # Editors
 TAGS
