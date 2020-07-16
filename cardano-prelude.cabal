@@ -137,6 +137,8 @@ test-suite cardano-prelude-test
                        -fno-warn-missing-import-lists
                        -fno-warn-unsafe
                        -fno-warn-safe
+                       -threaded
+                       -rtsopts
 
   if (!flag(development))
     ghc-options:         -Werror
