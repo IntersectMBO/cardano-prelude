@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PolyKinds         #-}
 {-# LANGUAGE TypeFamilies      #-}
@@ -12,9 +13,11 @@ where
 
 import Cardano.Prelude.Base
 
+#if !MIN_VERSION_nonempty_containers(0,3,4)
 import Data.Aeson (FromJSON(..), ToJSON(..))
 import Data.Set.NonEmpty (NESet)
 import qualified Data.Set.NonEmpty as NES
+#endif
 import Data.Tagged (Tagged(Tagged))
 import qualified Formatting as F
 import Formatting.Buildable (Buildable(..))
@@ -24,11 +27,13 @@ import Formatting.Buildable (Buildable(..))
 -- Aeson
 --------------------------------------------------------------------------------
 
+#if !MIN_VERSION_nonempty_containers(0,3,4)
 instance (Ord a, FromJSON a) => FromJSON (NESet a) where
   parseJSON = fmap NES.fromList . parseJSON
 
 instance (Ord a, ToJSON a) => ToJSON (NESet a) where
   toJSON = toJSON . toList
+#endif
 
 
 --------------------------------------------------------------------------------
