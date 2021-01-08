@@ -176,6 +176,7 @@ static CountFailure pushNested(WorkList* const work, HashSet* const visited, Stg
     case THUNK_1_1:
     case THUNK_0_2:
     case THUNK_2_0:
+    case THUNK_STATIC:
     {
       StgThunk const * const q = (StgThunk const * const) p;
 
@@ -194,6 +195,7 @@ static CountFailure pushNested(WorkList* const work, HashSet* const visited, Stg
     case FUN_1_1:
     case FUN_0_2:
     case FUN_2_0:
+    case FUN_STATIC:
     case CONSTR:
     case CONSTR_NOCAF:
     case CONSTR_1_0:
@@ -232,6 +234,34 @@ static CountFailure pushNested(WorkList* const work, HashSet* const visited, Stg
       StgInd const * const q = (StgInd const * const) p;
       if(!push(work, visited, q->indirectee)) {
         return WORK_LIST_FULL;
+      }
+      break;
+    }
+
+    case MUT_ARR_PTRS_CLEAN:
+    case MUT_ARR_PTRS_DIRTY:
+    case MUT_ARR_PTRS_FROZEN_CLEAN:
+    case MUT_ARR_PTRS_FROZEN_DIRTY:
+    {
+      StgMutArrPtrs const * const q = (StgMutArrPtrs const * const) p;
+      for(int i = q->ptrs - 1; i >= 0; i--) {
+        if(!push(work, visited, q->payload[i])) {
+          return WORK_LIST_FULL;
+        }
+      }
+      break;
+    }
+
+    case SMALL_MUT_ARR_PTRS_CLEAN:
+    case SMALL_MUT_ARR_PTRS_DIRTY:
+    case SMALL_MUT_ARR_PTRS_FROZEN_CLEAN:
+    case SMALL_MUT_ARR_PTRS_FROZEN_DIRTY:
+    {
+      StgSmallMutArrPtrs const * const q = (StgSmallMutArrPtrs const * const) p;
+      for(int i = q->ptrs - 1; i >= 0; i--) {
+        if(!push(work, visited, q->payload[i])) {
+          return WORK_LIST_FULL;
+        }
       }
       break;
     }
