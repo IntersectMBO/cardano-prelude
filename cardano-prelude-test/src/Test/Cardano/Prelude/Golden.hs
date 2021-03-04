@@ -17,7 +17,7 @@ where
 
 import Cardano.Prelude
 
-import Data.Aeson (FromJSON, ToJSON, eitherDecode, encode)
+import Data.Aeson (FromJSON, ToJSON, eitherDecode)
 import Data.Aeson.Encode.Pretty
   (Config(..), Indent(..), NumberFormat(..), encodePretty', keyOrder)
 import qualified Data.ByteString.Lazy as LB
@@ -86,13 +86,12 @@ goldenTestJSONDec x path = withFrozenCallStack $ withTests 1 . property $ do
     Right x'  -> x === x'
 
 goldenTestJSON
-  :: (Eq a, FromJSON a, HasCallStack, Show a, ToJSON a)
+  :: (Eq a, FromJSON a, HasCallStack, Show a)
   => a
   -> FilePath
   -> Property
 goldenTestJSON x path = withFrozenCallStack $ withTests 1 . property $ do
   bs <- liftIO (LB.readFile path)
-  encode x === bs
   case eitherDecode bs of
     Left  err -> failWith Nothing $ "could not decode: " <> show err
     Right x'  -> x === x'
