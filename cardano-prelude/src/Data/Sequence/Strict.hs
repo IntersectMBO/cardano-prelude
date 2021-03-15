@@ -95,7 +95,7 @@ infixl 5 :|>
 -- value to WHNF.
 newtype StrictSeq a = StrictSeq { fromStrict :: Seq a }
   deriving stock (Eq, Ord, Show)
-  deriving newtype (Foldable, Semigroup, Serialise)
+  deriving newtype (Foldable, Monoid,Semigroup, Serialise)
 
 instance Functor StrictSeq where
   fmap f (StrictSeq s) = StrictSeq . forceElemsToWHNF $ fmap f s
