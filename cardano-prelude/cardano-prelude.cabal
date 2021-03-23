@@ -21,8 +21,6 @@ flag development
 library
   hs-source-dirs:     src
   exposed-modules:    Cardano.Prelude
-                      Data.FingerTree.Strict
-                      Data.Sequence.Strict
                       Data.Semigroup.Action
   other-modules:      Cardano.Prelude.Base
                       Cardano.Prelude.Error
@@ -45,15 +43,12 @@ library
                     , canonical-json
                     , cborg
                     , containers
-                    , fingertree
                     , formatting
                     , ghc-heap
                     , ghc-prim
                     , integer-gmp
                     , mtl
-                    , nothunks
                     , protolude
-                    , serialise
                     , tagged
                     , text
                     , time
