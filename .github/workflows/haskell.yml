@@ -19,21 +19,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
-    - name: Select build directory
-      run: echo "CABAL_BUILDDIR=dist" >> $GITHUB_ENV
-
-    - name: Select optimal cabal version
-      run: |
-        case "$OS" in
-          Windows_NT)   echo "CABAL_VERSION=3.4.0.0-rc5"  >> $GITHUB_ENV;;
-          *)            echo "CABAL_VERSION=3.4.0.0"      >> $GITHUB_ENV;;
-        esac
-
     - uses: haskell/actions/setup@v1
       id: setup-haskell
       with:
         ghc-version: ${{ matrix.ghc }}
-        cabal-version: ${{ env.CABAL_VERSION }}
+        cabal-version: 3.4.0.0
 
     - name: Haskell versions
       run: |
@@ -44,11 +34,11 @@ jobs:
       run: cabal update
 
     - name: Cabal Configure
-      run: cabal configure --builddir="$CABAL_BUILDDIR" --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+      run: cabal configure --enable-tests --enable-benchmarks --write-ghc-environment-files=always
 
     - name: Record dependencies
       run: |
-        cat ${{ env.PLAN_JSON }} | jq -r '."install-plan"[].id' | sort | uniq > dependencies.txt
+        cat dist-newstyle/cache/plan.json | jq -r '."install-plan"[].id' | sort | uniq > dependencies.txt
 
     - name: Set cache version
       run: echo "CACHE_VERSION=9w76Z3Q" >> $GITHUB_ENV
@@ -63,10 +53,10 @@ jobs:
           cache-${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ matrix.ghc }}-
 
     - name: Install dependencies
-      run: cabal build all --builddir="$CABAL_BUILDDIR" --only-dependencies
+      run: cabal build all --only-dependencies
 
     - name: Build
-      run: cabal build all --builddir="$CABAL_BUILDDIR"
+      run: cabal build all
 
     - name: Run tests
-      run: cabal test all --builddir="$CABAL_BUILDDIR"
+      run: cabal test all
