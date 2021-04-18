@@ -35,7 +35,7 @@ library
                       Cardano.Prelude.Orphans
                       Cardano.Prelude.Strict
 
-  build-depends:      base               >= 4.14       && < 4.15
+  build-depends:      base               >= 4.14       && < 4.16
                     , aeson
                     , array
                     , base16-bytestring  >= 1
