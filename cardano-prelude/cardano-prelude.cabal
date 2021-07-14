@@ -23,8 +23,10 @@ library
   exposed-modules:    Cardano.Prelude
                       Data.Semigroup.Action
   other-modules:      Cardano.Prelude.Base
+                      Cardano.Prelude.DerivingVia
                       Cardano.Prelude.Error
                       Cardano.Prelude.Formatting
+                      Cardano.Prelude.GHC.Generics.Lattices
                       Cardano.Prelude.GHC.Heap
                       Cardano.Prelude.GHC.Heap.NormalForm
                       Cardano.Prelude.GHC.Heap.Size
@@ -47,8 +49,10 @@ library
                     , ghc-heap
                     , ghc-prim
                     , integer-gmp
+                    , lattices
                     , mtl
                     , protolude
+                    , semigroups
                     , tagged
                     , text
                     , time
