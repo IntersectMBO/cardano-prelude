@@ -1,5 +1,4 @@
 status = [
-  "buildkite/cardano-prelude",
   "ci/hydra:Cardano:cardano-prelude:required",
 ]
 timeout_sec = 7200
