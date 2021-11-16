@@ -1,6 +1,7 @@
-{-# LANGUAGE BangPatterns      #-}
-{-# LANGUAGE NamedFieldPuns    #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE BangPatterns             #-}
+{-# LANGUAGE NamedFieldPuns           #-}
+{-# LANGUAGE OverloadedStrings        #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
 
 {-|
 Module      :  Cardano.Prelude.GHC.Heap.Tree
@@ -33,6 +34,7 @@ import GHC.Exts.Heap
 import System.Mem (performGC)
 
 -- | The depth of a 'Tree'.
+type TreeDepth :: Type
 data TreeDepth
   = TreeDepth {-# UNPACK #-} !Int
   -- ^ A specific tree depth bound.
@@ -41,6 +43,7 @@ data TreeDepth
   deriving (Show)
 
 -- | Whether to traverse cyclic closures in a 'Closure' 'Tree'.
+type TraverseCyclicClosures :: Type
 data TraverseCyclicClosures
   = TraverseCyclicClosures
   -- ^ Traverse cyclic closures.
@@ -49,6 +52,7 @@ data TraverseCyclicClosures
   deriving (Show)
 
 -- | Options which detail how a 'Closure' 'Tree' should be constructed.
+type ClosureTreeOptions :: Type
 data ClosureTreeOptions = ClosureTreeOptions
   { ctoMaxDepth       :: !TreeDepth
   -- ^ Construct a closure tree given a maximum depth.

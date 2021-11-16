@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE Safe #-}
 
 module Cardano.Prelude.Base
@@ -6,12 +7,14 @@ module Cardano.Prelude.Base
   , identity
   , putTextLn
   , length
+  , C.toS
   )
 where
 
 import Protolude as X
   hiding ( Hashable
   , Map
+  , toS
   , hash
   , hashUsing
   , hashWithSalt
@@ -21,6 +24,7 @@ import Protolude as X
   , (.)
   )
 import qualified Protolude as Y
+import qualified Protolude.Conv as C
 
 import Data.Map.Strict as X (Map)
 import qualified Data.Text as T
@@ -39,6 +43,7 @@ putTextLn :: Text -> IO ()
 putTextLn = putStrLn
 
 -- Length which includes @Text@ as well as @Foldable@.
+type HasLength :: Type -> Constraint
 class HasLength a where
     length' :: a -> Int
 
