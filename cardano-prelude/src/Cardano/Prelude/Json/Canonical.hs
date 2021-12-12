@@ -1,5 +1,6 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE InstanceSigs          #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NumDecimals           #-}
 {-# LANGUAGE OverloadedStrings     #-}
@@ -107,13 +108,14 @@ instance ReportSchemaErrors m => FromJSON m Word32 where
   fromJSON val       = expectedButGotValue "Word32" val
 
 instance ReportSchemaErrors m => FromJSON m Word64 where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON :: JSValue -> m Word64
+  fromJSON = parseJSString readEither
 
 instance ReportSchemaErrors m => FromJSON m Integer where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString readEither
 
 instance MonadError SchemaError m => FromJSON m Natural where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString readEither
 
 instance MonadError SchemaError m => FromJSON m UTCTime where
   fromJSON = fmap (posixSecondsToUTCTime . fromIntegral) . fromJSON @_ @Int54

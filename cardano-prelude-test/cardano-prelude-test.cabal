@@ -50,6 +50,7 @@ library
   default-language:   Haskell2010
   default-extensions: NoImplicitPrelude
   ghc-options:        -Weverything
+                      -Wno-missing-kind-signatures
                       -fno-warn-all-missed-specialisations
                       -fno-warn-missing-deriving-strategies
                       -fno-warn-missing-import-lists

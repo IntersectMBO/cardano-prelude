@@ -59,6 +59,7 @@ library
                       cbits/worklist.c
                       cbits/closure_size.c
   ghc-options:        -Weverything
+                      -Wno-missing-kind-signatures
                       -fno-warn-all-missed-specialisations
                       -fno-warn-missing-deriving-strategies
                       -fno-warn-missing-import-lists
