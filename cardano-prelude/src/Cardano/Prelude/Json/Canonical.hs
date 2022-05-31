@@ -40,6 +40,8 @@ import Text.JSON.Canonical
   , toJSString
   )
 
+import Data.String (String)
+
 import Cardano.Prelude.Json.Parse (parseJSString)
 
 
@@ -109,15 +111,15 @@ instance ReportSchemaErrors m => FromJSON m Word32 where
 
 instance ReportSchemaErrors m => FromJSON m Word64 where
   fromJSON :: JSValue -> m Word64
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (readEither . (toS :: Text -> String))
 
 instance ReportSchemaErrors m => FromJSON m Integer where
   fromJSON :: JSValue -> m Integer
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (readEither . (toS :: Text -> String))
 
 instance MonadError SchemaError m => FromJSON m Natural where
   fromJSON :: JSValue -> m Natural
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (readEither . (toS :: Text -> String))
 
 instance MonadError SchemaError m => FromJSON m UTCTime where
   fromJSON = fmap (posixSecondsToUTCTime . fromIntegral) . fromJSON @_ @Int54
