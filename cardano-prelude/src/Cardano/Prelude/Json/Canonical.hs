@@ -4,7 +4,7 @@
 {-# LANGUAGE NumDecimals           #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE UndecidableInstances  #-}
 
@@ -19,28 +19,23 @@ module Cardano.Prelude.Json.Canonical
   )
 where
 
-import Cardano.Prelude.Base
+import           Cardano.Prelude.Base
+import           Cardano.Prelude.Json.Parse (parseJSString)
+import           Data.Fixed                 (E12, resolution)
+import           Data.Time                  (NominalDiffTime, UTCTime)
+import           Data.Time.Clock.POSIX      (posixSecondsToUTCTime,
+                                             utcTimeToPOSIXSeconds)
+import           Formatting                 (bprint, builder)
+import           Formatting.Buildable       (Buildable (build))
+import           Text.JSON.Canonical        (FromJSON (fromJSON), Int54,
+                                             JSValue (JSNum, JSString),
+                                             ReportSchemaErrors (expected),
+                                             ToJSON (toJSON))
 
-import qualified Data.ByteString.Lazy as LB
-import Data.Fixed (E12, resolution)
-import qualified Data.Text.Lazy.Builder as Builder (fromText)
-import Data.Time (NominalDiffTime, UTCTime)
-import Data.Time.Clock.POSIX (posixSecondsToUTCTime, utcTimeToPOSIXSeconds)
-import Formatting (bprint, builder)
-import Formatting.Buildable (Buildable(build))
-import qualified Text.JSON.Canonical as CanonicalJSON
-import Text.JSON.Canonical
-  ( FromJSON(fromJSON)
-  , Int54
-  , JSValue(JSNum, JSString)
-  , ReportSchemaErrors(expected)
-  , ToJSON(toJSON)
-  , expectedButGotValue
-  , toJSString
-  )
-
-import Cardano.Prelude.Json.Parse (parseJSString)
-
+import qualified Cardano.Prelude.Compat     as I
+import qualified Data.ByteString.Lazy       as LB
+import qualified Data.Text.Lazy.Builder     as Builder
+import qualified Text.JSON.Canonical        as CanonicalJSON
 
 data SchemaError = SchemaError
   { seExpected :: !Text
@@ -74,13 +69,13 @@ instance Monad m => ToJSON m Word32 where
   toJSON = pure . JSNum . fromIntegral
 
 instance Monad m => ToJSON m Word64 where
-  toJSON = pure . JSString . toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . show
 
 instance Monad m => ToJSON m Integer where
-  toJSON = pure . JSString . toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . show
 
 instance Monad m => ToJSON m Natural where
-  toJSON = pure . JSString . toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . show
 
 -- | For backwards compatibility we convert this to seconds
 instance Monad m => ToJSON m UTCTime where
@@ -96,24 +91,24 @@ instance Monad m => ToJSON m NominalDiffTime where
 
 instance ReportSchemaErrors m => FromJSON m Int32 where
   fromJSON (JSNum i) = pure . fromIntegral $ i
-  fromJSON val       = expectedButGotValue "Int32" val
+  fromJSON val       = CanonicalJSON.expectedButGotValue "Int32" val
 
 instance ReportSchemaErrors m => FromJSON m Word16 where
   fromJSON (JSNum i) = pure . fromIntegral $ i
-  fromJSON val       = expectedButGotValue "Word16" val
+  fromJSON val       = CanonicalJSON.expectedButGotValue "Word16" val
 
 instance ReportSchemaErrors m => FromJSON m Word32 where
   fromJSON (JSNum i) = pure . fromIntegral $ i
-  fromJSON val       = expectedButGotValue "Word32" val
+  fromJSON val       = CanonicalJSON.expectedButGotValue "Word32" val
 
 instance ReportSchemaErrors m => FromJSON m Word64 where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (I.readEither @Word64 @Text . toS)
 
 instance ReportSchemaErrors m => FromJSON m Integer where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (I.readEither @Integer @Text . toS)
 
 instance MonadError SchemaError m => FromJSON m Natural where
-  fromJSON = parseJSString (readEither . toS)
+  fromJSON = parseJSString (I.readEither @Natural @Text . toS)
 
 instance MonadError SchemaError m => FromJSON m UTCTime where
   fromJSON = fmap (posixSecondsToUTCTime . fromIntegral) . fromJSON @_ @Int54
