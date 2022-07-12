@@ -3,6 +3,7 @@ index-state: 2022-09-21T00:00:00Z
 packages:
   cardano-prelude
   cardano-prelude-test
+  cardano-tasty-hedgehog
 
 constraints:
   -- Only this supports ghc-9.2
