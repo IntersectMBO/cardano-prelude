@@ -28,6 +28,7 @@ library
                       Test.Cardano.Prelude.QuickCheck.Arbitrary
                       Test.Cardano.Prelude.QuickCheck.Property
                       Test.Cardano.Prelude.Tripping
+
   build-depends:      base
                     , aeson
                     , aeson-pretty >= 0.8.5
@@ -45,11 +46,12 @@ library
                     , QuickCheck
                     , quickcheck-instances
                     , template-haskell
+                    , th-compat
                     , text
                     , time
   default-language:   Haskell2010
   default-extensions: NoImplicitPrelude
-  ghc-options:        -Weverything
+  ghc-options:        -Wall
                       -fno-warn-all-missed-specialisations
                       -fno-warn-missing-deriving-strategies
                       -fno-warn-missing-import-lists
@@ -79,15 +81,20 @@ test-suite cardano-prelude-test-suite
                     , text
   default-language:   Haskell2010
   default-extensions: NoImplicitPrelude
-  ghc-options:        -Weverything
-                      -fno-warn-missing-import-lists
-                      -fno-warn-unsafe
-                      -fno-warn-safe
-                      -threaded
+  ghc-options:        -threaded
                       -rtsopts
+                      -Wall
                       -fno-warn-missing-deriving-strategies
                       -fno-warn-missing-safe-haskell-mode
                       -fno-warn-prepositive-qualified-module
+                      -fno-warn-all-missed-specialisations
+                      -fno-warn-missing-deriving-strategies
+                      -fno-warn-missing-import-lists
+                      -fno-warn-missing-safe-haskell-mode
+                      -fno-warn-prepositive-qualified-module
+                      -fno-warn-safe
+                      -fno-warn-unsafe
+
 
   if (!flag(development))
     ghc-options:      -Werror

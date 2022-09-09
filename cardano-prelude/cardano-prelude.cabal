@@ -35,7 +35,7 @@ library
                       Cardano.Prelude.Orphans
                       Cardano.Prelude.Strict
 
-  build-depends:      base               >= 4.14       && < 4.15
+  build-depends:      base               >= 4.14       && < 4.18
                     , aeson
                     , base16-bytestring  >= 1
                     , bytestring
@@ -56,7 +56,7 @@ library
   c-sources:          cbits/hashset.c
                       cbits/worklist.c
                       cbits/closure_size.c
-  ghc-options:        -Weverything
+  ghc-options:        -Wall
                       -fno-warn-all-missed-specialisations
                       -fno-warn-missing-deriving-strategies
                       -fno-warn-missing-import-lists
@@ -64,6 +64,7 @@ library
                       -fno-warn-prepositive-qualified-module
                       -fno-warn-safe
                       -fno-warn-unsafe
+
   cc-options:         -Wall
 
   if (!flag(development))
