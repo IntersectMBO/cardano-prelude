@@ -24,6 +24,7 @@ library
                       Data.Semigroup.Action
   other-modules:      Cardano.Prelude.Base
                       Cardano.Prelude.Compat
+                      Cardano.Prelude.Compat.ByteString.Short
                       Cardano.Prelude.Error
                       Cardano.Prelude.Formatting
                       Cardano.Prelude.GHC.Heap
