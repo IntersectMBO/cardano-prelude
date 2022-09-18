@@ -5,6 +5,7 @@ where
 
 import Cardano.Prelude.Base as X hiding (readEither)
 import Cardano.Prelude.Compat as X (readEither)
+import Cardano.Prelude.Compat.ByteString.Short as X
 import Cardano.Prelude.Error as X
 import Cardano.Prelude.Formatting as X
 import Cardano.Prelude.GHC.Heap as X
