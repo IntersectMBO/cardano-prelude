@@ -55,8 +55,13 @@ library
 
   if (!flag(development))
     ghc-options:      -Werror
-
-test-suite cardano-prelude-test-suite
+ 
+-- NOTE: We need to keep the test-suite name short.
+--       If it's too long, we may exceed the path length
+--       on windows... somehow.
+-- => Keep the test-suite name short (and module names as well)
+--    to make this build on windows.
+test-suite prelude-tests
   hs-source-dirs:     test
   main-is:            test.hs
   type:               exitcode-stdio-1.0
