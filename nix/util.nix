@@ -5,10 +5,10 @@ with haskell-nix.haskellLib;
 
   inherit
     selectProjectPackages
-    collectComponents';
+    collectComponents'
+    collectChecks';
 
   inherit (extra)
-    recRecurseIntoAttrs
-    collectChecks;
+    recRecurseIntoAttrs;
 
 }

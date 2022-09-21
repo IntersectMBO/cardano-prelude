@@ -17,7 +17,7 @@ let
 
   haskellPackages = recRecurseIntoAttrs
     # we are only interested in listing the project packages:
-    (selectProjectPackages cardanoPreludeHaskellPackages);
+    (selectProjectPackages cardanoPreludeHaskellPackages.hsPkgs);
 
   self = {
     inherit haskellPackages check-hydra;
@@ -31,7 +31,7 @@ let
 
     checks = recurseIntoAttrs {
       # `checks.tests` collect results of executing the tests:
-      tests = collectChecks haskellPackages;
+      tests = collectChecks' haskellPackages;
     };
 
     shell = import ./shell.nix {
