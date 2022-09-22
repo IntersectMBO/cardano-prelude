@@ -1,5 +1,9 @@
-index-state: 2022-07-01T00:00:00Z
+index-state: 2022-09-21T00:00:00Z
 
 packages:
   cardano-prelude
   cardano-prelude-test
+
+constraints:
+  -- Only this supports ghc-9.2
+  canonical-json >= 0.6.0.1

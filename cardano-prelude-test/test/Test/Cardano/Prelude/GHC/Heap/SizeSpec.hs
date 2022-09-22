@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns               #-}
+{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE DeriveAnyClass             #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE DerivingStrategies         #-}
@@ -92,7 +93,8 @@ bsSize numElems = NumWords (5 + 2 + 2 + numElems `divRoundUp` wordSize)
 --
 -- Bounds are in words.
 verifySize :: NumWords -> a -> Property
-verifySize (NumWords expected) !x = withTests 1 $ property $ do
+verifySize (NumWords expected) !x =
+  withTests 1 $ property $ do
     annotate (show wordSize)
     sz <- liftIO $ computeHeapSize x
     sz === Right expected
@@ -102,6 +104,15 @@ verifySize (NumWords expected) !x = withTests 1 $ property $ do
 mkBS :: [Word8] -> ByteString
 {-# NOINLINE mkBS #-}
 mkBS = BS.Strict.pack
+
+-- | GHC >= 9.0 has a modified internal representation of ByteString which uses
+-- one byte less than the old one.
+adjustBsSize :: NumWords -> NumWords
+#if __GLASGOW_HASKELL__ < 900
+adjustBsSize = identity
+#else
+adjustBsSize (NumWords x) = NumWords (x - 1)
+#endif
 
 {-------------------------------------------------------------------------------
   Auxiliary: binary trees
@@ -161,17 +172,17 @@ prop_Ints3   = verifySize 4 $ Ints3 1# 2# 3#
 prop_Ints4   = verifySize 5 $ Ints4 1# 2# 3# 4#
 prop_Ints5   = verifySize 6 $ Ints5 1# 2# 3# 4# 5#
 
-prop_Bs103   = verifySize (bsSize 103) $ mkBS [1 .. 103]
-prop_Bs104   = verifySize (bsSize 104) $ mkBS [1 .. 104]
-prop_Bs105   = verifySize (bsSize 105) $ mkBS [1 .. 105]
+prop_Bs103   = verifySize (adjustBsSize $ bsSize 103) $ mkBS [1 .. 103]
+prop_Bs104   = verifySize (adjustBsSize $ bsSize 104) $ mkBS [1 .. 104]
+prop_Bs105   = verifySize (adjustBsSize $ bsSize 105) $ mkBS [1 .. 105]
 
 -- These tuples share a bytestring, so we have the size of the bytestring plus
 -- the size of the tuple, which is the iptr plus the fields of the tuple.
 
-prop_2_Bs106 = verifySize (1 + 2 + bsSize 106) $ let !x = mkBS [1 .. 106] in (x, x)
-prop_3_Bs107 = verifySize (1 + 3 + bsSize 107) $ let !x = mkBS [1 .. 107] in (x, x, x)
-prop_4_Bs108 = verifySize (1 + 4 + bsSize 108) $ let !x = mkBS [1 .. 108] in (x, x, x, x)
-prop_5_Bs109 = verifySize (1 + 5 + bsSize 109) $ let !x = mkBS [1 .. 109] in (x, x, x, x, x)
+prop_2_Bs106 = verifySize (adjustBsSize $ 1 + 2 + bsSize 106) $ let !x = mkBS [1 .. 106] in (x, x)
+prop_3_Bs107 = verifySize (adjustBsSize $ 1 + 3 + bsSize 107) $ let !x = mkBS [1 .. 107] in (x, x, x)
+prop_4_Bs108 = verifySize (adjustBsSize $ 1 + 4 + bsSize 108) $ let !x = mkBS [1 .. 108] in (x, x, x, x)
+prop_5_Bs109 = verifySize (adjustBsSize $ 1 + 5 + bsSize 109) $ let !x = mkBS [1 .. 109] in (x, x, x, x, x)
 
 -- Unsupported closure type
 prop_MVar = withTests 1 $ property $ do

@@ -40,6 +40,7 @@ import Hedgehog.Internal.TH (TExpQ)
 
 import Language.Haskell.TH (Exp(..), Q, location, runIO)
 import Language.Haskell.TH.Syntax (Loc(..), mkName, unTypeQ, unsafeTExpCoerce)
+import Language.Haskell.TH.Syntax.Compat (Splice, examineSplice, liftSplice)
 
 discoverRoundTrip :: TExpQ Group
 discoverRoundTrip = discoverPrefix "roundTrip"
@@ -56,39 +57,43 @@ discoverPropArg = discoverPrefixThreadArg "ts_prop_"
 -- `(a -> Group)` function which passes that `a`-typed argument to all of
 -- the sub-properties, so that they are fully applied `Property`'s and can
 -- be wrapped into a Hedgehog `Group`.
-discoverPrefixThreadArg :: forall a . String -> TExpQ (a -> Group)
-discoverPrefixThreadArg prefix = do
-  file       <- getCurrentFile
-  properties <- Map.toList <$> runIO (readProperties prefix file)
+discoverPrefixThreadArg :: forall a . String -> Splice Q (a -> Group)
+discoverPrefixThreadArg prefix =
+  liftSplice $ do
+    file       <- getCurrentFile
+    properties <- Map.toList <$> runIO (readProperties prefix file)
 
-  let
-    startLine :: (c, PropertySource) -> (c, PropertySource) -> Ordering
-    startLine = comparing $ posLine . posPostion . propertySource . snd
+    let
+      startLine :: (c, PropertySource) -> (c, PropertySource) -> Ordering
+      startLine = comparing $ posLine . posPostion . propertySource . snd
 
-    names     = fmap (mkNamedProperty . fst) $ sortBy startLine properties
+      names     = fmap (mkNamedProperty . fst) $ sortBy startLine properties
 
-  [|| \arg -> Group $$(testModuleName) (map ($ arg) $$(listTE names)) ||]
+    examineSplice [|| \arg -> Group $$(testModuleName) (map ($ arg) $$(listTE names)) ||]
  where
 
-  mkNamedProperty :: PropertyName -> TExpQ (a -> (PropertyName, Property))
+  mkNamedProperty :: PropertyName -> Splice Q (a -> (PropertyName, Property))
   mkNamedProperty name = do
     [|| \arg -> (name, $$(unsafeProperty name) arg) ||]
 
-  unsafeProperty :: PropertyName -> TExpQ (a -> Property)
-  unsafeProperty pn = do
-    let
-      prop :: TExpQ (a -> Property)
-      prop = unsafeTExpCoerce . pure . VarE . mkName $ unPropertyName pn
-    [|| $$prop ||]
+  unsafeProperty :: PropertyName -> Splice Q (a -> Property)
+  unsafeProperty pn =
+    liftSplice $ do
+      let
+        prop :: Splice Q (a -> Property)
+        prop = liftSplice . unsafeTExpCoerce . pure . VarE . mkName $ unPropertyName pn
+      examineSplice [|| $$prop ||]
 
-  listTE :: [TExpQ b] -> TExpQ [b]
-  listTE xs = do
-    unsafeTExpCoerce . pure . ListE =<< traverse unTypeQ xs
+  listTE :: [Splice Q b] -> Splice Q [b]
+  listTE xs =
+    liftSplice $ do
+      unsafeTExpCoerce . pure . ListE =<< traverse (unTypeQ . examineSplice) xs
 
-  testModuleName :: TExpQ GroupName
-  testModuleName = do
-    loc <- GroupName . loc_module <$> location
-    [|| loc ||]
+  testModuleName :: Splice Q GroupName
+  testModuleName = 
+    liftSplice $ do
+      loc <- GroupName . loc_module <$> location
+      examineSplice [|| loc ||]
 
   getCurrentFile :: Q FilePath
   getCurrentFile = loc_filename <$> location
