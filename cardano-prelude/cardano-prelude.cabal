@@ -12,6 +12,7 @@ copyright:            2018-2022 IOHK
 category:             Currency
 build-type:           Simple
 extra-source-files:   ChangeLog.md, README.md cbits/hashset.h cbits/worklist.h
+tested-with:          GHC == 9.2.4, GHC == 8.10.7
 
 flag development
   description: Disable `-Werror`
@@ -37,11 +38,11 @@ library
                       Cardano.Prelude.Orphans
                       Cardano.Prelude.Strict
 
-  build-depends:      base               >= 4.14       && < 4.18
+  build-depends:      base                    >= 4.14       && < 4.18
                     , aeson
-                    , base16-bytestring  >= 1
+                    , base16-bytestring       >= 1
                     , bytestring
-                    , canonical-json
+                    , canonical-json          >= 0.6.0.1
                     , cborg
                     , containers
                     , formatting
