@@ -31,11 +31,11 @@ library
 
   build-depends:      base
                     , aeson
-                    , aeson-pretty >= 0.8.5
+                    , aeson-pretty            >= 0.8.5
                     , attoparsec
-                    , base16-bytestring >= 1
+                    , base16-bytestring       >= 1
                     , bytestring
-                    , canonical-json
+                    , canonical-json          >= 0.6.0.1
                     , cardano-prelude
                     , containers
                     , cryptonite
