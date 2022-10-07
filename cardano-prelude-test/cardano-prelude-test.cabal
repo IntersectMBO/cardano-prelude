@@ -55,7 +55,10 @@ library
 
   if (!flag(development))
     ghc-options:      -Werror
- 
+
+  if (os(ghcjs))
+    buildable:        False
+
 -- NOTE: We need to keep the test-suite name short.
 --       If it's too long, we may exceed the path length
 --       on windows... somehow.
@@ -85,3 +88,6 @@ test-suite prelude-tests
 
   if (!flag(development))
     ghc-options:      -Werror
+
+  if (os(ghcjs))
+    buildable:        False
