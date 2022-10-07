@@ -23,3 +23,13 @@ result*
 # Visual Studio Code
 /.vscode
 
+#std cache
+.std
+
+#direnv local config
+.envrc.local
+
+# nixago: ignore-linked-files
+lefthook.yml
+.conform.yaml
+treefmt.toml
