@@ -35,10 +35,10 @@ in rec {
     };
     mkHydraJobTasks = __mapAttrs (_: mkHydraJobTask);
 
-    hydraJobTasks   = mkHydraJobTasks (flakeOutputTasks ["hydraJobs"] self);
+    hydraJobTasks   = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
     # TODO this should this be using `hydraJobsPr` instead of `hydraJobs`?
     # Where does that come from?
-    hydraJobPrTasks = mkHydraJobTasks (flakeOutputTasks ["hydraJobs"] self);
+    hydraJobPrTasks = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
 
     ciPushTasks = taskSequence "ci/push/" hydraJobTasks   (__attrNames hydraJobTasks);
     ciPrTasks   = taskSequence "ci/pr/"   hydraJobPrTasks (__attrNames hydraJobPrTasks);
