@@ -46,7 +46,7 @@ in rec {
     ciPushTasks // ciPrTasks // {
       "ci/push" = {lib, ...}: {
         imports = [common];
-        after = [(lib.last (__attrNames ciPushTasks))];
+        after = [(__attrNames ciPushTasks)];
       };
 
       "ci/pr" = {lib, ...}: {
