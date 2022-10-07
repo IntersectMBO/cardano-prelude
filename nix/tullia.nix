@@ -61,7 +61,7 @@ in rec {
       io = ''
         #lib.io.github_push
         #input: "${ciInputName}"
-        #repo: "input-output-hk/cardano-node"
+        #repo: "input-output-hk/cardano-prelude"
       '';
     };
 
