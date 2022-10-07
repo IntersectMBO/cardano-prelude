@@ -65,7 +65,7 @@ in rec {
       '';
     };
 
-    "cardano-node/ci/pr" = {
+    "cardano-prelude/ci/pr" = {
       task = "ci/pr";
       io = ''
         #lib.io.github_pr
