@@ -31,7 +31,6 @@
             hixProject =
               final.haskell-nix.hix.project {
                 src = ./.;
-                evalSystem = "x86_64-darwin";
                 compiler-nix-name = __head compilers;
                 inputMap."https://input-output-hk.github.io/ghc-next-packages" = ghc-next-packages;
               };
