@@ -56,7 +56,7 @@ in rec {
     };
 
   actions = {
-    "cardano-node/ci/push" = {
+    "cardano-prelude/ci/push" = {
       task = "ci/push";
       io = ''
         #lib.io.github_push
