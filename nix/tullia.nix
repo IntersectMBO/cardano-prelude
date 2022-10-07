@@ -16,7 +16,7 @@ in rec {
 
         github-ci = {
           enable = config.actionRun.facts != {};
-          repo = "input-output-hk/cardano-node";
+          repo = "input-output-hk/cardano-prelude";
           sha = config.preset.github-ci.lib.getRevision ciInputName null;
         };
       };
