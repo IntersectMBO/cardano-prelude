@@ -39,7 +39,7 @@ in rec {
 
     ciPushTasks = taskSequence "ci/push/" hydraJobTasks   (__attrNames hydraJobTasks);
   in
-    ciPushTasks // ciPrTasks // {
+    ciPushTasks // {
       "ci/push" = {lib, ...}: {
         imports = [common];
         after = __attrNames ciPushTasks;
