@@ -1,4 +1,4 @@
 [dimensions]
-os = [ "x86_64-linux" "x86_64-darwin" ]
+os = [ "x86_64-linux", "x86_64-darwin" ]
 compiler = [ "ghc8107", "ghc924" ]
 disable = [] # For example [ "x86_64-darwin.ghc8107" ]
