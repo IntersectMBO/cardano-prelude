@@ -37,12 +37,12 @@ in rec {
 
     hydraJobTasks   = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
 
-    ciPushTasks = taskSequence "ci/push/" hydraJobTasks   (__attrNames hydraJobTasks);
+    ciTasks = taskSequence "ci/" hydraJobTasks   (__attrNames hydraJobTasks);
   in
-    ciPushTasks // {
-      "ci/push" = {lib, ...}: {
+    ciTasks // {
+      "ci" = {lib, ...}: {
         imports = [common];
-        after = __attrNames ciPushTasks;
+        after = __attrNames ciTasks;
       };
     };
 
