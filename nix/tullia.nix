@@ -47,12 +47,19 @@ in rec {
     };
 
   actions = {
-    "cardano-prelude/ci/push" = {
-      task = "ci/push";
+    "cardano-prelude/ci" = {
+      task = "ci";
       io = ''
-        #lib.io.github_push
-        #input: "${ciInputName}"
-        #repo: "input-output-hk/cardano-prelude"
+        let github = {
+          #input: "${ciInputName}"
+          #repo: "input-output-hk/cardano-prelude"
+        }
+        
+        #lib.merge
+        #ios: [
+          #lib.io.github_push & github,
+          #lib.io.github_pr     & github,
+        ]
       '';
     };
   };
