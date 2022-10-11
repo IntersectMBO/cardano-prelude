@@ -35,9 +35,9 @@ in rec {
     };
     mkHydraJobTasks = __mapAttrs (_: mkHydraJobTask);
 
-    hydraJobTasks   = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
+    hydraJobTasks = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
 
-    ciTasks = taskSequence "ci/" hydraJobTasks   (__attrNames hydraJobTasks);
+    ciTasks = taskSequence "ci/" hydraJobTasks (__attrNames hydraJobTasks);
   in
     ciTasks // {
       "ci" = {lib, ...}: {
@@ -58,7 +58,7 @@ in rec {
         #lib.merge
         #ios: [
           #lib.io.github_push & github,
-          #lib.io.github_pr     & github,
+          #lib.io.github_pr   & github,
         ]
       '';
     };
