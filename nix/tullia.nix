@@ -55,15 +55,5 @@ in rec {
         #repo: "input-output-hk/cardano-prelude"
       '';
     };
-
-    "cardano-prelude/ci/pr" = {
-      task = "ci/pr";
-      io = ''
-        #lib.io.github_pr
-        #input: "${ciInputName}"
-        #repo: "input-output-hk/cardano-prelude"
-        #target_default: false
-      '';
-    };
   };
 }
