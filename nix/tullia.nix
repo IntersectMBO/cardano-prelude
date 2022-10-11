@@ -44,11 +44,6 @@ in rec {
         imports = [common];
         after = __attrNames ciPushTasks;
       };
-
-      "ci/pr" = {lib, ...}: {
-        imports = [common];
-        after = [(lib.last (__attrNames ciPrTasks))];
-      };
     };
 
   actions = {
