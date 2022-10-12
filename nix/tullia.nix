@@ -44,7 +44,7 @@ in rec {
 
     hydraJobTasks = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system]
       # TODO put this back to `self` if we get `:` working
-      (fixNames self));
+      { outputs.ciJobs.${system} = fixNames self.outputs.ciJobs.${system}; });
 
     ciTasks = taskSequence "ci/" hydraJobTasks (__attrNames hydraJobTasks);
   in
