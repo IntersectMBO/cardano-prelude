@@ -9,7 +9,7 @@
       flake = false;
     };
     tullia = {
-       url = "github:input-output-hk/tullia/escape";
+       url = "github:input-output-hk/tullia";
        inputs.nixpkgs.follows = "nixpkgs";
      };
      ghc-next-packages = {
