@@ -35,7 +35,16 @@ in rec {
     };
     mkHydraJobTasks = __mapAttrs (_: mkHydraJobTask);
 
-    hydraJobTasks = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system] self);
+    # Work around replaces `:` with `__` in attribute names
+    fixNames = x: __listToAttrs (map (
+      name: let v = x.${name}; in
+        { name = __replaceStrings [":"] ["__"] name;
+        value = if __isAttrs v && !(v.type or null == "derivation")
+          then fixNames v else v; }) (__attrNames x));
+
+    hydraJobTasks = mkHydraJobTasks (flakeOutputTasks ["ciJobs" system]
+      # TODO put this back to `self` if we get `:` working
+      { outputs.ciJobs.${system} = fixNames self.outputs.ciJobs.${system}; });
 
     ciTasks = taskSequence "ci/" hydraJobTasks (__attrNames hydraJobTasks);
   in
