@@ -1,22 +1,22 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Test.Cardano.Prelude.GHC.Heap.NormalFormSpec
-  ( tests
-  ) where
+module Test.Cardano.Prelude.GHC.Heap.NormalFormSpec (
+  tests,
+) where
 
 import Cardano.Prelude
 
 import GHC.Exts.Heap
-import Hedgehog
-  ( Property
-  , assert
-  , checkParallel
-  , discover
-  , forAll
-  , property
-  , withTests
-  , annotateShow
-  )
+import Hedgehog (
+  Property,
+  annotateShow,
+  assert,
+  checkParallel,
+  discover,
+  forAll,
+  property,
+  withTests,
+ )
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 

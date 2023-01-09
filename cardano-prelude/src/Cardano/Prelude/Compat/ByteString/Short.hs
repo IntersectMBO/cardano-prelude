@@ -1,9 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE MagicHash #-}
 
-module Cardano.Prelude.Compat.ByteString.Short
-  ( unsafeShortByteStringIndex
-  ) where
+module Cardano.Prelude.Compat.ByteString.Short (
+  unsafeShortByteStringIndex,
+) where
 
 -- GHC >= 9.0 does not export unsafeIndex for ShortByteString
 -- GHC < 9.0 does not export the ShortByteString constructor SBS.

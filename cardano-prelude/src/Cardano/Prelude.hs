@@ -1,6 +1,6 @@
-module Cardano.Prelude
-  ( module X
-  )
+module Cardano.Prelude (
+  module X,
+)
 where
 
 import Cardano.Prelude.Base as X hiding (readEither)

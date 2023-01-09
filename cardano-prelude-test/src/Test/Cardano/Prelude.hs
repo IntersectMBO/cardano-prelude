@@ -1,6 +1,6 @@
-module Test.Cardano.Prelude
-  ( module X
-  )
+module Test.Cardano.Prelude (
+  module X,
+)
 where
 
 import Test.Cardano.Prelude.Base16 as X

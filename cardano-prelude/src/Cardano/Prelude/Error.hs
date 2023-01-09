@@ -1,13 +1,12 @@
 -- | Passing through errors to external libraries that use @MonadFail@
-
-module Cardano.Prelude.Error
-  ( toAesonError
-  , aesonError
-  , toCborError
-  , cborError
-  , wrapError
-  , orThrowError
-  )
+module Cardano.Prelude.Error (
+  toAesonError,
+  aesonError,
+  toCborError,
+  cborError,
+  wrapError,
+  orThrowError,
+)
 where
 
 import Cardano.Prelude.Base
@@ -18,7 +17,6 @@ import Control.Monad.Except (liftEither)
 import qualified Data.Aeson.Types as A
 import Formatting (build, formatToString)
 import Formatting.Buildable (Buildable)
-
 
 -- | Convert an 'Either'-encoded error to an 'aeson' parser error
 toAesonError :: Buildable e => Either e a -> A.Parser a
@@ -36,7 +34,6 @@ toCborError = either cborError pure
 cborError :: Buildable e => e -> CBOR.Decoder s a
 cborError = fail . formatToString build
 
-
 -- | A helper for lifting an 'Either' to a 'MonadError'
 --
 --   By using this function infix we can move the error handling to the end of
@@ -45,7 +42,6 @@ wrapError :: MonadError e' m => Either e a -> (e -> e') -> m a
 wrapError m wrapper = liftEither $ first wrapper m
 
 infix 1 `wrapError`
-
 
 -- | A helper for lifting 'unless' to 'MonadError'
 --

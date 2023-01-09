@@ -18,8 +18,7 @@ in {
           "inplace"
           "--check-idempotence"
         ];
-        # TODO: activate haskell formatter:
-        #includes = ["*.hs"];
+        includes = ["*.hs"];
       };
     };
     packages = [cell.packages.fourmolu];

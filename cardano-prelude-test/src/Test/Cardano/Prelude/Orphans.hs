@@ -1,16 +1,13 @@
-{-# LANGUAGE DeriveFoldable     #-}
-{-# LANGUAGE DeriveFunctor      #-}
+{-# LANGUAGE DeriveFoldable #-}
+{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE DeriveTraversable #-}
 {-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE DeriveTraversable  #-}
-{-# LANGUAGE PolyKinds          #-}
-{-# LANGUAGE TypeFamilies       #-}
-
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 -- | Orphan instances for external types/classes
-
-module Test.Cardano.Prelude.Orphans
-  ()
+module Test.Cardano.Prelude.Orphans ()
 where
 
 import Cardano.Prelude
@@ -20,9 +17,8 @@ import qualified Crypto.Random as Rand
 import Test.QuickCheck (Gen)
 import qualified Test.QuickCheck as QC
 
-
 data Five a = Five a a a a a
-    deriving stock (Functor, Foldable, Traversable)
+  deriving stock (Functor, Foldable, Traversable)
 
 five :: a -> Five a
 five a = Five a a a a a
