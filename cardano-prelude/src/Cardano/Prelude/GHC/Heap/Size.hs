@@ -1,17 +1,17 @@
-{-# LANGUAGE BangPatterns        #-}
-{-# LANGUAGE MagicHash           #-}
-{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE UnboxedTuples       #-}
-{-# LANGUAGE UnliftedFFITypes    #-}
+{-# LANGUAGE UnboxedTuples #-}
+{-# LANGUAGE UnliftedFFITypes #-}
 
 module Cardano.Prelude.GHC.Heap.Size (
-    CountFailure(..)
-  , PerformGC(..)
-  , computeHeapSize
-  , computeHeapSize'
-  , computeHeapSizeWorkList
-  ) where
+  CountFailure (..),
+  PerformGC (..),
+  computeHeapSize,
+  computeHeapSize',
+  computeHeapSizeWorkList,
+) where
 
 import Cardano.Prelude.Base hiding (Any)
 
@@ -29,15 +29,14 @@ import System.Mem (performMajorGC)
 -------------------------------------------------------------------------------}
 
 cNO_FAILURE, cWORK_LIST_FULL, cVISITED_FULL, cOUT_OF_MEMORY, cUNSUPPORTED_CLOSURE :: CUInt
-
-cNO_FAILURE          = 0
-cWORK_LIST_FULL      = 1
-cVISITED_FULL        = 2
-cOUT_OF_MEMORY       = 3
+cNO_FAILURE = 0
+cWORK_LIST_FULL = 1
+cVISITED_FULL = 2
+cOUT_OF_MEMORY = 3
 cUNSUPPORTED_CLOSURE = 4
 
-data CountFailure =
-    WorkListFull
+data CountFailure
+  = WorkListFull
   | VisitedFull
   | OutOfMemory
   | UnsupportedClosure ClosureType
@@ -45,10 +44,10 @@ data CountFailure =
 
 toCountFailure :: CUInt -> Maybe CountFailure
 toCountFailure n
-  | n == cNO_FAILURE          = Nothing
-  | n == cWORK_LIST_FULL      = Just $ WorkListFull
-  | n == cVISITED_FULL        = Just $ VisitedFull
-  | n == cOUT_OF_MEMORY       = Just $ OutOfMemory
+  | n == cNO_FAILURE = Nothing
+  | n == cWORK_LIST_FULL = Just $ WorkListFull
+  | n == cVISITED_FULL = Just $ VisitedFull
+  | n == cOUT_OF_MEMORY = Just $ OutOfMemory
   | n >= cUNSUPPORTED_CLOSURE = Just $ UnsupportedClosure typ
   | otherwise = panic "getCountFailure: impossible"
   where
@@ -73,19 +72,18 @@ foreign import ccall unsafe "hs_cardanoprelude_closureSize"
   closureSize_ :: CUInt -> CUInt -> CUInt -> Ptr CUInt -> StablePtr a -> IO CULong
 
 -- | Should we perform a GC call before counting the size?
-data PerformGC =
-    -- | Yes, first perform GC before counting
+data PerformGC
+  = -- | Yes, first perform GC before counting
     --
     -- This should be used for most accurate results. Without calling GC first,
     -- the computed size might be larger than expected due to leftover
     -- indirections (black holes, selector thunks, etc.)
     FirstPerformGC
-
-    -- | No, do not perform GC before counting
+  | -- | No, do not perform GC before counting
     --
     -- If pinpoint accuracy is not requried, then GC can be skipped, making the
     -- call much less expensive.
-  | DontPerformGC
+    DontPerformGC
 
 -- | Wrapper around 'closureSize_' that takes care of creating the stable ptr
 --
@@ -93,22 +91,24 @@ data PerformGC =
 -- we have no guarantee that GC will not happen in between taking that address
 -- and the C call. We therefore create and pass a stable pointer instead.
 closureSize :: PerformGC -> CUInt -> CUInt -> CUInt -> Ptr CUInt -> a -> IO CULong
-closureSize performGC
-            workListCapacity
-            visitedInitCapacity
-            visitedMaxCapacity
-            err
-            a
-          = do
-    case performGC of
-      FirstPerformGC -> performMajorGC
-      DontPerformGC  -> return ()
-    bracket (newStablePtr a) freeStablePtr $ \stablePtr ->
-      closureSize_ workListCapacity
-                   visitedInitCapacity
-                   visitedMaxCapacity
-                   err
-                   stablePtr
+closureSize
+  performGC
+  workListCapacity
+  visitedInitCapacity
+  visitedMaxCapacity
+  err
+  a =
+    do
+      case performGC of
+        FirstPerformGC -> performMajorGC
+        DontPerformGC -> return ()
+      bracket (newStablePtr a) freeStablePtr $ \stablePtr ->
+        closureSize_
+          workListCapacity
+          visitedInitCapacity
+          visitedMaxCapacity
+          err
+          stablePtr
 
 -- | Compute the size of the given closure
 --
@@ -118,33 +118,42 @@ closureSize performGC
 --
 -- 'computeHeapSizeWorkList' can be used to estimate the size of the worklist
 -- required.
-computeHeapSize' :: PerformGC -- ^ Should we call GC before counting?
-                 -> Word      -- ^ Capacity of the worklist
-                 -> Word      -- ^ Initial capacity of the visited set
-                 -> Word      -- ^ Maximum capacity of the visited set
-                 -> a -> IO (Either CountFailure Word64)
-computeHeapSize' performGC
-                 workListCapacity
-                 visitedInitCapacity
-                 visitedMaxCapacity
-                 a
-               = do
-    alloca $ \(err :: Ptr CUInt) -> do
-      size     <- closureSize performGC
-                              workListCapacity'
-                              visitedInitCapacity'
-                              visitedMaxCapacity'
-                              err
-                              a
-      mFailure <- toCountFailure <$> peek err
-      return $ case mFailure of
-                 Just failure -> Left failure
-                 Nothing      -> Right (fromIntegral size)
-  where
-    workListCapacity', visitedInitCapacity', visitedMaxCapacity' :: CUInt
-    workListCapacity'    = fromIntegral workListCapacity
-    visitedInitCapacity' = fromIntegral visitedInitCapacity
-    visitedMaxCapacity'  = fromIntegral visitedMaxCapacity
+computeHeapSize' ::
+  -- | Should we call GC before counting?
+  PerformGC ->
+  -- | Capacity of the worklist
+  Word ->
+  -- | Initial capacity of the visited set
+  Word ->
+  -- | Maximum capacity of the visited set
+  Word ->
+  a ->
+  IO (Either CountFailure Word64)
+computeHeapSize'
+  performGC
+  workListCapacity
+  visitedInitCapacity
+  visitedMaxCapacity
+  a =
+    do
+      alloca $ \(err :: Ptr CUInt) -> do
+        size <-
+          closureSize
+            performGC
+            workListCapacity'
+            visitedInitCapacity'
+            visitedMaxCapacity'
+            err
+            a
+        mFailure <- toCountFailure <$> peek err
+        return $ case mFailure of
+          Just failure -> Left failure
+          Nothing -> Right (fromIntegral size)
+    where
+      workListCapacity', visitedInitCapacity', visitedMaxCapacity' :: CUInt
+      workListCapacity' = fromIntegral workListCapacity
+      visitedInitCapacity' = fromIntegral visitedInitCapacity
+      visitedMaxCapacity' = fromIntegral visitedMaxCapacity
 
 -- | Compute the size of the given closure
 --
@@ -156,21 +165,22 @@ computeHeapSize' performGC
 --
 -- It also does NOT perform GC before counting, for improved performance.
 -- Client code can call 'performMajorGC' manually or use 'computeHeapSize''.
- --
+--
 -- Should these limits not be sufficient, or conversely, the memory requirements
 -- be too large, use 'computeHeapSize'' directly.
 computeHeapSize :: a -> IO (Either CountFailure Word64)
 computeHeapSize =
-   computeHeapSize' DontPerformGC
-                    workListCapacity
-                    visitedInitCapacity
-                    visitedMaxCapacity
+  computeHeapSize'
+    DontPerformGC
+    workListCapacity
+    visitedInitCapacity
+    visitedMaxCapacity
   where
     -- Memory usage assuming 64-bit (i.e. 8 byte) pointers
     workListCapacity, visitedInitCapacity, visitedMaxCapacity :: Word
-    workListCapacity    =        10 * 1000 --  80 kB
-    visitedInitCapacity =       250 * 1000 --   2 MB
-    visitedMaxCapacity  = 16 * 1000 * 1000 -- 128 MB
+    workListCapacity = 10 * 1000 --  80 kB
+    visitedInitCapacity = 250 * 1000 --   2 MB
+    visitedMaxCapacity = 16 * 1000 * 1000 -- 128 MB
 
 {-------------------------------------------------------------------------------
   Compute the depth of the closure
@@ -227,8 +237,9 @@ computeHeapSize =
 -- which, for a tree of @Int@, is bound by @(height * 2) + 1@.
 computeHeapSizeWorkList :: a -> Word64
 computeHeapSizeWorkList a =
-    maximum $ fromIntegral (I# (sizeofArray# ptrs))
-            : map nested (collect [] 0#)
+  maximum $
+    fromIntegral (I# (sizeofArray# ptrs))
+      : map nested (collect [] 0#)
   where
     ptrs :: Array# Any
     !(# _addr, _raw, ptrs #) = unpackClosure# a
@@ -246,9 +257,10 @@ computeHeapSizeWorkList a =
     -- > ]
     collect :: [(Any, Word64)] -> Int# -> [(Any, Word64)]
     collect acc ix =
-        case ix <# sizeofArray# ptrs of
-          0# -> acc
-          _  -> let n :: Word64
-                    !n = fromIntegral (I# (sizeofArray# ptrs -# (ix +# 1#)))
-                in case indexArray# ptrs ix of
-                     (# p #) -> collect ((p, n) : acc) (ix +# 1#)
+      case ix <# sizeofArray# ptrs of
+        0# -> acc
+        _ ->
+          let n :: Word64
+              !n = fromIntegral (I# (sizeofArray# ptrs -# (ix +# 1#)))
+           in case indexArray# ptrs ix of
+                (# p #) -> collect ((p, n) : acc) (ix +# 1#)

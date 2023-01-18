@@ -1,25 +1,25 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Safe #-}
 
-module Cardano.Prelude.Base
-  ( module X
-  , identity
-  , putTextLn
-  , length
-  )
+module Cardano.Prelude.Base (
+  module X,
+  identity,
+  putTextLn,
+  length,
+)
 where
 
-import Protolude as X
-  hiding ( Hashable
-  , Map
-  , hash
-  , hashUsing
-  , hashWithSalt
-  , identity
-  , length
-  , witness
-  , (.)
-  )
+import Protolude as X hiding (
+  Hashable,
+  Map,
+  hash,
+  hashUsing,
+  hashWithSalt,
+  identity,
+  length,
+  witness,
+  (.),
+ )
 import qualified Protolude as Y
 
 import Data.Map.Strict as X (Map)
@@ -40,7 +40,7 @@ putTextLn = putStrLn
 
 -- Length which includes @Text@ as well as @Foldable@.
 class HasLength a where
-    length' :: a -> Int
+  length' :: a -> Int
 
 instance HasLength Text where
   length' = T.length

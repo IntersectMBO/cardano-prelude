@@ -1,26 +1,26 @@
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE TemplateHaskell #-}
 
-module Test.Cardano.Prelude.GHC.Heap.TreeSpec
-  ( tests
-  ) where
+module Test.Cardano.Prelude.GHC.Heap.TreeSpec (
+  tests,
+) where
 
 import Cardano.Prelude
 
 import Data.Text (unpack)
-import Hedgehog
-  ( Gen
-  , Property
-  , checkParallel
-  , discover
-  , failure
-  , forAll
-  , property
-  , withTests
-  , annotate
-  , (===)
-  )
+import Hedgehog (
+  Gen,
+  Property,
+  annotate,
+  checkParallel,
+  discover,
+  failure,
+  forAll,
+  property,
+  withTests,
+  (===),
+ )
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
@@ -28,20 +28,20 @@ import qualified Hedgehog.Range as Range
 -- n.b. The (+ 1) is for the `[]` constructor at the end.
 prop_Word8ListClosureTreeDepth :: Property
 prop_Word8ListClosureTreeDepth =
-  withTests 500
-    $ property
-    $ do
+  withTests 500 $
+    property $
+      do
         let
           genElem :: Gen Word8
           genElem = Gen.word8 Range.constantBounded
         listLen <- forAll $ Gen.int (Range.constant 0 500)
-        xs      <- forAll $ Gen.list (Range.singleton listLen) genElem
+        xs <- forAll $ Gen.list (Range.singleton listLen) genElem
         let
           maxTreeDepth = AnyDepth -- This should be okay since, in this property,
-                                  -- the maximum depth of a generated tree can
-                                  -- only be `listLen + 1`.
-          travCycClos  = NoTraverseCyclicClosures
-          opts         = ClosureTreeOptions maxTreeDepth travCycClos
+          -- the maximum depth of a generated tree can
+          -- only be `listLen + 1`.
+          travCycClos = NoTraverseCyclicClosures
+          opts = ClosureTreeOptions maxTreeDepth travCycClos
         mbClosureTree <- liftIO $ buildClosureTree opts $!! xs
         case mbClosureTree of
           Nothing -> do
@@ -61,13 +61,13 @@ prop_ClosureTreeHasSpecifiedDepth = withTests 500 $ property $ do
   let
     genElem :: Gen Word8
     genElem = Gen.word8 Range.constantBounded
-  listLen  <- forAll $ Gen.int (Range.constant 0 500)
-  xs       <- forAll $ Gen.list (Range.singleton listLen) genElem
+  listLen <- forAll $ Gen.int (Range.constant 0 500)
+  xs <- forAll $ Gen.list (Range.singleton listLen) genElem
   maxDepth <- forAll $ Gen.int (Range.constant 0 1000)
   let
-    travCycClos  = NoTraverseCyclicClosures
+    travCycClos = NoTraverseCyclicClosures
     maxTreeDepth = TreeDepth maxDepth
-    opts         = ClosureTreeOptions maxTreeDepth travCycClos
+    opts = ClosureTreeOptions maxTreeDepth travCycClos
   mbClosureTree <- liftIO $ buildClosureTree opts $!! xs
   case mbClosureTree of
     Nothing -> maxDepth === 0

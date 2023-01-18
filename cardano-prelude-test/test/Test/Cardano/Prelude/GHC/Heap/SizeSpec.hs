@@ -1,29 +1,28 @@
-{-# LANGUAGE BangPatterns               #-}
-{-# LANGUAGE CPP                        #-}
-{-# LANGUAGE DeriveAnyClass             #-}
-{-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE DerivingStrategies         #-}
+{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MagicHash                  #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE TemplateHaskell            #-}
-
+{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -fno-full-laziness #-}
 {-# OPTIONS_GHC -fno-warn-missing-signatures #-}
 
-module Test.Cardano.Prelude.GHC.Heap.SizeSpec
-  ( tests
-  ) where
+module Test.Cardano.Prelude.GHC.Heap.SizeSpec (
+  tests,
+) where
 
 import Cardano.Prelude hiding (diff)
 
+import qualified Data.ByteString as BS.Strict
 import GHC.Exts.Heap.Constants
 import GHC.Prim (Int#)
-import qualified Data.ByteString as BS.Strict
 
 import Hedgehog
-import qualified Hedgehog.Gen   as Gen
+import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
 {-------------------------------------------------------------------------------
@@ -43,7 +42,7 @@ data Ints5 = Ints5 Int# Int# Int# Int# Int#
 -------------------------------------------------------------------------------}
 
 newtype NumWords = NumWords Word64
-  deriving stock   (Show, Eq, Ord)
+  deriving stock (Show, Eq, Ord)
   deriving newtype (Num)
 
 -- | Size of a word (in bytes)
@@ -129,7 +128,7 @@ genBalancedTree height genA = go height
     go n = Branch <$> go (n - 1) <*> genA <*> go (n - 1)
 
 heightOf :: Tree a -> Word64
-heightOf Leaf           = 0
+heightOf Leaf = 0
 heightOf (Branch l _ r) = 1 + max (heightOf l) (heightOf r)
 
 {-------------------------------------------------------------------------------
@@ -138,14 +137,14 @@ heightOf (Branch l _ r) = 1 + max (heightOf l) (heightOf r)
 
 prop_WorkList_ListInt :: Property
 prop_WorkList_ListInt = property $ do
-    xs <- forAll $ Gen.list (Range.linear 1 100) (Gen.int (Range.constantBounded))
-    (computeHeapSizeWorkList $! force xs) === 2
+  xs <- forAll $ Gen.list (Range.linear 1 100) (Gen.int (Range.constantBounded))
+  (computeHeapSizeWorkList $! force xs) === 2
 
 prop_WorkList_TreeInt :: Property
 prop_WorkList_TreeInt = property $ do
-    n  <- forAll $ Gen.int (Range.linear 2 12)
-    xs <- forAll $ genBalancedTree n (Gen.int (Range.constantBounded))
-    (computeHeapSizeWorkList $! force xs) === (heightOf xs * 2) + 1
+  n <- forAll $ Gen.int (Range.linear 2 12)
+  xs <- forAll $ genBalancedTree n (Gen.int (Range.constantBounded))
+  (computeHeapSizeWorkList $! force xs) === (heightOf xs * 2) + 1
 
 {-------------------------------------------------------------------------------
   Tests proper
@@ -164,17 +163,17 @@ prop_WorkList_TreeInt = property $ do
   <https://mail.haskell.org/pipermail/ghc-devs/2019-February/017030.html>
 -------------------------------------------------------------------------------}
 
-prop_Int     = verifySize 2 (1    :: Int)
-prop_Float   = verifySize 2 (1.0  :: Float)
-prop_Bool    = verifySize 2 (True :: Bool)
-prop_Ints2   = verifySize 3 $ Ints2 1# 2#
-prop_Ints3   = verifySize 4 $ Ints3 1# 2# 3#
-prop_Ints4   = verifySize 5 $ Ints4 1# 2# 3# 4#
-prop_Ints5   = verifySize 6 $ Ints5 1# 2# 3# 4# 5#
+prop_Int = verifySize 2 (1 :: Int)
+prop_Float = verifySize 2 (1.0 :: Float)
+prop_Bool = verifySize 2 (True :: Bool)
+prop_Ints2 = verifySize 3 $ Ints2 1# 2#
+prop_Ints3 = verifySize 4 $ Ints3 1# 2# 3#
+prop_Ints4 = verifySize 5 $ Ints4 1# 2# 3# 4#
+prop_Ints5 = verifySize 6 $ Ints5 1# 2# 3# 4# 5#
 
-prop_Bs103   = verifySize (adjustBsSize $ bsSize 103) $ mkBS [1 .. 103]
-prop_Bs104   = verifySize (adjustBsSize $ bsSize 104) $ mkBS [1 .. 104]
-prop_Bs105   = verifySize (adjustBsSize $ bsSize 105) $ mkBS [1 .. 105]
+prop_Bs103 = verifySize (adjustBsSize $ bsSize 103) $ mkBS [1 .. 103]
+prop_Bs104 = verifySize (adjustBsSize $ bsSize 104) $ mkBS [1 .. 104]
+prop_Bs105 = verifySize (adjustBsSize $ bsSize 105) $ mkBS [1 .. 105]
 
 -- These tuples share a bytestring, so we have the size of the bytestring plus
 -- the size of the tuple, which is the iptr plus the fields of the tuple.
@@ -186,46 +185,46 @@ prop_5_Bs109 = verifySize (adjustBsSize $ 1 + 5 + bsSize 109) $ let !x = mkBS [1
 
 -- Unsupported closure type
 prop_MVar = withTests 1 $ property $ do
-    mvar <- liftIO $ newMVar ()
-    sz <- liftIO $ computeHeapSize mvar
-    case sz of
-      Left (UnsupportedClosure _) -> return ()
-      _otherwise -> failure
+  mvar <- liftIO $ newMVar ()
+  sz <- liftIO $ computeHeapSize mvar
+  case sz of
+    Left (UnsupportedClosure _) -> return ()
+    _otherwise -> failure
 
 -- Compute size of a list with minimum worklist and visited set size
 --
 -- We run this test repeatedly, to flush out any potential non-determinism
 -- in the C code.
 prop_list = withTests 1000 $ property $ do
-    sz <- liftIO $ computeHeapSize' FirstPerformGC 2 102 102 xs
-    -- 100 cons nodes : each 3 words
-    --   1 nil  node  : 2 words
-    --   1 I#   nod e : 2 words
-    sz === Right 304
+  sz <- liftIO $ computeHeapSize' FirstPerformGC 2 102 102 xs
+  -- 100 cons nodes : each 3 words
+  --   1 nil  node  : 2 words
+  --   1 I#   nod e : 2 words
+  sz === Right 304
   where
     xs :: [Int]
     !xs = force $ replicate 100 1
 
 prop_list_visited_full = withTests 1 $ property $ do
-    sz <- liftIO $ computeHeapSize' FirstPerformGC 2 101 101 xs
-    sz === Left VisitedFull
+  sz <- liftIO $ computeHeapSize' FirstPerformGC 2 101 101 xs
+  sz === Left VisitedFull
   where
     xs :: [Int]
     !xs = force $ replicate 100 1
 
 prop_list_worklist_full = withTests 1 $ property $ do
-    sz <- liftIO $ computeHeapSize' FirstPerformGC 1 102 102 xs
-    sz === Left WorkListFull
+  sz <- liftIO $ computeHeapSize' FirstPerformGC 1 102 102 xs
+  sz === Left WorkListFull
   where
     xs :: [Int]
     !xs = force $ replicate 100 1
 
 -- Compute size of infinite list
 prop_ones = withTests 1 $ property $ do
-    let xs :: [Int]
-        xs = 1 : xs
-    sz <- liftIO $ computeHeapSize xs
-    sz === Right 5
+  let xs :: [Int]
+      xs = 1 : xs
+  sz <- liftIO $ computeHeapSize xs
+  sz === Right 5
 
 tests :: IO Bool
 tests = and <$> sequence [checkParallel $$(discover)]

@@ -12,7 +12,7 @@ copyright:            2018-2022 IOHK
 category:             Currency
 build-type:           Simple
 extra-source-files:   ChangeLog.md, README.md cbits/hashset.h cbits/worklist.h
-tested-with:          GHC == 9.2.4, GHC == 8.10.7
+tested-with:          GHC == 9.2.5, GHC == 8.10.7
 
 flag development
   description: Disable `-Werror`

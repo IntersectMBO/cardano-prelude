@@ -1,14 +1,13 @@
 -- | Hedgehog generators for commonly used types
-
-module Test.Cardano.Prelude.Gen
-  ( genBytes
-  , genUTF8Byte
-  , gen32Bytes
-  , genWord32
-  , genWord16
-  , genNatural
-  , genNominalDiffTime
-  )
+module Test.Cardano.Prelude.Gen (
+  genBytes,
+  genUTF8Byte,
+  gen32Bytes,
+  genWord32,
+  genWord16,
+  genNatural,
+  genNominalDiffTime,
+)
 where
 
 import Cardano.Prelude
@@ -18,7 +17,6 @@ import Data.Time (NominalDiffTime)
 import Hedgehog (Gen)
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
-
 
 genBytes :: Int -> Gen ByteString
 genBytes n = Gen.bytes (Range.singleton n)

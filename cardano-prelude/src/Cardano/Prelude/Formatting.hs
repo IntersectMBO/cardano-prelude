@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE TypeFamilies #-}
 
 -- | This module contains custom @Format@s for use with the `formatting` library
 --
@@ -22,16 +22,15 @@
 --   There is then a formatter @build :: Buildable a => Format r (a -> r)@.
 --   So, to get a @Text@ from any @Buildable@ value we can simply call
 --   @sformat build value@, and we can compose this @build@ in larger @Format@s.
-
-module Cardano.Prelude.Formatting
-  ( base16Builder
-  , base16F
-  , pairF
-  , pairBuilder
-  , listJson
-  , listJsonIndent
-  , mapJson
-  )
+module Cardano.Prelude.Formatting (
+  base16Builder,
+  base16F,
+  pairF,
+  pairBuilder,
+  listJson,
+  listJsonIndent,
+  mapJson,
+)
 where
 
 import Cardano.Prelude.Base
@@ -42,9 +41,8 @@ import qualified Data.Text.Lazy as LT
 import Data.Text.Lazy.Builder (Builder, fromLazyText, fromString)
 import Formatting (Format, bprint, later)
 import qualified Formatting as F (build)
-import Formatting.Buildable (Buildable(build))
+import Formatting.Buildable (Buildable (build))
 import qualified GHC.Exts as Exts
-
 
 --------------------------------------------------------------------------------
 -- Base16
@@ -57,7 +55,6 @@ base16Builder = fromString . BS.unpack . B16.encode
 -- | A @Format@ for a @ByteString@ that performs base 16 encoding
 base16F :: Format r (ByteString -> r)
 base16F = later base16Builder
-
 
 --------------------------------------------------------------------------------
 -- Containers
@@ -73,19 +70,20 @@ pairF = later pairBuilder
 
 -- | A @Builder@ for @Foldable@ containers of @Buildable@ values that surrounds
 --   values using @prefix@ and @suffix@, and splits them using @delimiter@
-foldableBuilder
-  :: (Foldable t, Buildable a)
-  => Builder
-  -> Builder
-  -> Builder
-  -> t a
-  -> Builder
-foldableBuilder prefix delimiter suffix as = mconcat
-  [prefix, mconcat builders, suffix]
- where
-  builders = foldr appendBuilder [] as
-  appendBuilder a [] = [build a]
-  appendBuilder a bs = build a : delimiter : bs
+foldableBuilder ::
+  (Foldable t, Buildable a) =>
+  Builder ->
+  Builder ->
+  Builder ->
+  t a ->
+  Builder
+foldableBuilder prefix delimiter suffix as =
+  mconcat
+    [prefix, mconcat builders, suffix]
+  where
+    builders = foldr appendBuilder [] as
+    appendBuilder a [] = [build a]
+    appendBuilder a bs = build a : delimiter : bs
 
 -- | A @Builder@ for @Foldable@ containers that outputs a JSON-style list
 --
@@ -101,11 +99,11 @@ listJson = later listBuilderJson
 --   line with @indent@ spaces of indentation
 listBuilderJsonIndent :: (Foldable t, Buildable a) => Word -> t a -> Builder
 listBuilderJsonIndent indent as
-  | null as   = "[]"
+  | null as = "[]"
   | otherwise = foldableBuilder ("[\n" <> spaces) delimiter "\n]" as
- where
-  spaces    = fromLazyText $ LT.replicate (fromIntegral indent) " "
-  delimiter = ",\n" <> spaces
+  where
+    spaces = fromLazyText $ LT.replicate (fromIntegral indent) " "
+    delimiter = ",\n" <> spaces
 
 -- | A @Format@ similar to @listJson@ that prints each value on a new line with
 --   @indent@ spaces of indentation
@@ -114,10 +112,10 @@ listJsonIndent = later . listBuilderJsonIndent
 
 -- | A @Builder@ for @Exts.IsList@ containers of @Buildable@ key-value pairs
 --   that outputs a JSON-style colon-separated map
-mapBuilderJson
-  :: (Exts.IsList t, Exts.Item t ~ (k, v), Buildable k, Buildable v)
-  => t
-  -> Builder
+mapBuilderJson ::
+  (Exts.IsList t, Exts.Item t ~ (k, v), Buildable k, Buildable v) =>
+  t ->
+  Builder
 mapBuilderJson =
   foldableBuilder "{" ", " "}"
     . map (uncurry $ bprint (F.build . ": " . F.build))
@@ -125,7 +123,7 @@ mapBuilderJson =
 
 -- | A @Format@ for @Exts.IsList@ containers of @Buildable@ key-value pairs that
 --   outputs a JSON-style colon-separated map
-mapJson
-  :: (Exts.IsList t, Exts.Item t ~ (k, v), Buildable k, Buildable v)
-  => Format r (t -> r)
+mapJson ::
+  (Exts.IsList t, Exts.Item t ~ (k, v), Buildable k, Buildable v) =>
+  Format r (t -> r)
 mapJson = later mapBuilderJson
