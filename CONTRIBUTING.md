@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Contributing
 
 ## Prerequisites
@@ -128,3 +129,18 @@ You may also check what is the last `index-state` available within the current h
 ```console
 $ nix eval .#last-index-state
 ```
+
+## Roles and Responsibilities
+
+The `cardano-prelude` package is collectively mainntained by the `cardano-core`
+team.  If you open a PR expect a review from one of the core contributors.
+
+
+## Releases
+
+`cardano-prelude` is released to [Cardano Haskell Packages (CHaP)][CHaP].
+
+If you want to include it as a dependency of your project see [CHaP]
+documentation.
+
+[CHaP]: https://github.com/input-output-hk/cardano-haskell-packages

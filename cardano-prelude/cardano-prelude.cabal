@@ -4,11 +4,13 @@ name:                 cardano-prelude
 version:              0.1.0.1
 synopsis:             A Prelude replacement for the Cardano project
 description:          A Prelude replacement for the Cardano project
-license:              MIT
-license-file:         LICENSE
 author:               IOHK
 maintainer:           operations@iohk.io
 copyright:            2018-2022 IOHK
+license:              Apache-2.0
+license-files:
+  LICENSE
+  NOTICE
 category:             Currency
 build-type:           Simple
 extra-source-files:   ChangeLog.md, README.md cbits/hashset.h cbits/worklist.h
