@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:                 cardano-prelude-test
-version:              0.1.0.1
+version:              0.1.0.2
 synopsis:             Utility types and functions for testing Cardano
 description:          Utility types and functions for testing Cardano
 license:              MIT
