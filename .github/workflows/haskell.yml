@@ -34,13 +34,7 @@ jobs:
       run: cabal update
 
     - name: Cabal Configure
-      run: |
-        if test ${{ matrix.ghc }} == "9.6.1" ; then
-          cp ".github/workflows/cabal.project.local-ghc-9.6" cabal.project.local
-          echo "# cabal.project.local"
-          cat cabal.project.local
-          fi
-        cabal build all --dry-run --enable-tests --enable-benchmarks --write-ghc-environment-files=always
+      run: cabal build all --dry-run --enable-tests --enable-benchmarks --write-ghc-environment-files=always
 
     - name: Record dependencies
       run: |
