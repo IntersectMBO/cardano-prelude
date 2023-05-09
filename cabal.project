@@ -4,3 +4,14 @@ index-state: 2023-01-11T00:00:00Z
 packages:
   cardano-prelude
   cardano-prelude-test
+
+if impl(ghc >= 9.6)
+  allow-newer:
+    , *:base
+    , *:ghc-prim
+    , *:template-haskell
+    , hedgehog:*
+    , protolude:binary
+    , protolude:bytestring
+    , protolude:text
+    , th-compat:*
