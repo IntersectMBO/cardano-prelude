@@ -1,5 +1,5 @@
 -- See CONTRIBUTING for Nix commands you need to run if you change it:
-index-state: 2023-01-11T00:00:00Z
+index-state: 2023-05-18T20:27:48Z
 
 packages:
   cardano-prelude
@@ -9,9 +9,9 @@ if impl(ghc >= 9.6)
   allow-newer:
     , *:base
     , *:ghc-prim
-    , *:template-haskell
-    , hedgehog:*
     , protolude:binary
     , protolude:bytestring
     , protolude:text
-    , th-compat:*
+
+test-show-details: direct
+
