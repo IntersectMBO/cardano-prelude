@@ -8,7 +8,7 @@ license:              MIT
 license-file:         LICENSE
 author:               IOHK
 maintainer:           operations@iohk.io
-copyright:            2018-2021 IOHK
+copyright:            2018-2023 Input Output Global Inc (IOG)
 category:             Currency
 build-type:           Simple
 
