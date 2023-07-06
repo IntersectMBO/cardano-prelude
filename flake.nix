@@ -17,12 +17,6 @@
     std = {
       url = "github:divnix/std";
     };
-    tullia = {
-      url = "github:input-output-hk/tullia";
-      inputs = {
-        std.follows = "std";
-      };
-    };
     iohk-nix = {
       url = "github:input-output-hk/iohk-nix";
       inputs = {
@@ -32,7 +26,6 @@
   };
   outputs = {
     std,
-    tullia,
     self,
     ...
   } @ inputs:
@@ -52,7 +45,6 @@
         (std.functions "devshellProfiles")
         (std.devshells "devshells")
         (std.installables "ciJobs")
-        (tullia.tasks "tasks")
         (std.functions "actions")
       ];
     }
@@ -61,13 +53,9 @@
       # nix-cli compat
       packages = std.harvest self [["prelude" "packages"] ["prelude" "library"] ["_automation" "ciJobs"] ["_automation" "packages"]];
       devShells = std.harvest self ["_automation" "devshells"];
-    }
-    ( # Cicero / tullia CI jobs:
-      tullia.fromStd {
-        actions = std.harvest self ["_cloud" "actions"];
-        tasks = std.harvest self ["_automation" "tasks"];
-      }
-    );
+
+      hydraJobs = std.harvest self ["_automation" "ciJobs"];
+    };
 
   # --- Flake Local Nix Configuration ----------------------------
   nixConfig = {
