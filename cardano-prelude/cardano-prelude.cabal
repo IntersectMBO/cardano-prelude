@@ -1,7 +1,7 @@
 cabal-version: 2.2
 
 name:                 cardano-prelude
-version:              0.1.0.2
+version:              0.1.0.3
 synopsis:             A Prelude replacement for the Cardano project
 description:          A Prelude replacement for the Cardano project
 author:               IOHK

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE ExplicitNamespaces #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE Safe #-}
 
@@ -6,6 +8,9 @@ module Cardano.Prelude.Base (
   identity,
   putTextLn,
   length,
+#if __GLASGOW_HASKELL__ >= 906
+  type (~)
+#endif
 )
 where
 
@@ -28,6 +33,10 @@ import qualified Data.Text as T
 import Control.Category (id)
 import Control.Category as X hiding (id)
 import Numeric.Natural as X
+
+#if __GLASGOW_HASKELL__ >= 906
+import Prelude (type (~))
+#endif
 
 -- | Rename `id` to `identity` to allow `id` as a variable name
 identity :: Category cat => cat a a
