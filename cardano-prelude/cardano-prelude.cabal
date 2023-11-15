@@ -40,8 +40,8 @@ library
                       Cardano.Prelude.Orphans
                       Cardano.Prelude.Strict
 
-  build-depends:      base                    >= 4.14       && < 4.19
-                    , aeson
+  build-depends:      base                    >= 4.14       && < 4.20
+                    , aeson                   >= 2.0
                     , base16-bytestring       >= 1
                     , bytestring
                     , canonical-json          >= 0.6.0.1
