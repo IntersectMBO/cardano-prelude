@@ -23,7 +23,7 @@
         #"aarch64-linux"
         "aarch64-darwin"
        ]; in
-    inputs.flake-utils.lib.eachSystem supportedSystems (system:
+    let flake = inputs.flake-utils.lib.eachSystem supportedSystems (system:
       let
         # setup our nixpkgs with the haskell.nix overlays, and the iohk-nix
         # overlays...
@@ -35,7 +35,7 @@
         # ... and construct a flake from the cabal.project file.
         # We use cabalProject' to ensure we don't build the plan for
         # all systems.
-        flake = (nixpkgs.haskell-nix.cabalProject' rec {
+        perSystemFlake = (nixpkgs.haskell-nix.cabalProject' rec {
           src = ./.;
           name = "cardano-prelude";
           compiler-nix-name = "ghc928";
@@ -53,12 +53,16 @@
           nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
           crossPlatforms = p: [p.mingwW64];
         });
-      in nixpkgs.lib.recursiveUpdate flake {
-        # add a required job, that's basically all hydraJobs.
-        hydraJobs = nixpkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates
-          { ciJobs = flake.hydraJobs; };
-      }
-    );
+      in perSystemFlake
+    ); in let pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
+    # This is not ideal, it means this flake will not evaluate properly on
+    # anything but linux :-/ However, CI requires a top-level required job,
+    # for now. And not one per system.
+    in pkgs.lib.recursiveUpdate flake {
+      # add a required job, that's basically all hydraJobs.
+      hydraJobs = pkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates
+        { ciJobs = flake.hydraJobs; };
+    };
 
   nixConfig = {
     extra-substituters = [
