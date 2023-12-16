@@ -1,7 +1,7 @@
 # `cardano-prelude`
 
 An alternative prelude based on [`protolude`] used by projects in the `cardano`
-ecosystem.  Some projects use it as their default prelude (using
+ecosystem.  Some projects use it as their default prelude (using 
 `NoImplicitPrelude`), othes just import specific functions from it.
 
 If you'd like to contribute see [CONTRIBUTING.md]. We also have a [code of conduct].
