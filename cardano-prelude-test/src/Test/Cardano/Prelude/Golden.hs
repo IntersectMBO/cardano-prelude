@@ -27,7 +27,7 @@ import Data.Aeson.Encode.Pretty (
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
-import Data.Text.Lazy.Builder (toLazyText)
+import qualified Data.Text.Lazy.Builder as Builder
 import Formatting.Buildable (build)
 import Prelude hiding ((.))
 import qualified Text.JSON.Canonical as Canonical
@@ -77,7 +77,7 @@ goldenTestCanonicalJSONDec x path = withFrozenCallStack $ do
       Left err -> failWith Nothing $ "could not parse: " <> Prelude.show err
       Right jsv -> case Canonical.fromJSON jsv of
         Left (schErr :: SchemaError) ->
-          failWith Nothing $ LT.unpack $ toLazyText $ build schErr
+          failWith Nothing $ LT.unpack $ Builder.toLazyText $ build schErr
         Right x' -> x === x'
 
 -- | Only check that the datatype equals the decoding of the file

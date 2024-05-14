@@ -26,6 +26,7 @@ library
   exposed-modules:    Cardano.Prelude
                       Data.Semigroup.Action
   other-modules:      Cardano.Prelude.Base
+                      Cardano.Prelude.ConvertText
                       Cardano.Prelude.Compat.ByteString.Short
                       Cardano.Prelude.Error
                       Cardano.Prelude.Formatting
@@ -38,6 +39,7 @@ library
                       Cardano.Prelude.Microlens
                       Cardano.Prelude.Orphans
                       Cardano.Prelude.Panic
+                      Cardano.Prelude.Show
                       Cardano.Prelude.Strict
 
   build-depends:      base                    >= 4.14       && < 5

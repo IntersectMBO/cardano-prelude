@@ -56,7 +56,7 @@ import Data.Word as X (Word, Word8, Word16, Word32, Word64)
 import Foreign.Ptr as X (Ptr)
 import GHC.Generics as X (Generic)
 import GHC.Stack as X
-import Prelude as X (Bool (..), Eq (..), Integer, Num (..), Read, String, Show (..), type (~),
+import Prelude as X (Bool (..), Eq (..), Integer, Num (..), Read, String, Show, type (~),
         ($), (++), (||), (*), (^),
         const, fromIntegral, fst, otherwise, rem, snd, toInteger)
 import System.Exit as X

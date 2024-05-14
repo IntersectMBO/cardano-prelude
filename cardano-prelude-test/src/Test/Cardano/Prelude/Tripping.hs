@@ -23,7 +23,7 @@ import Cardano.Prelude
 import Data.Aeson (FromJSON, ToJSON, decode, encode, fromJSON, toJSON)
 import Data.Map qualified as Map
 import Data.String (unlines)
-import Data.Text.Internal.Builder (toLazyText)
+import Data.Text.Internal.Builder qualified as Builder
 import Data.Text.Lazy qualified as LazyText
 import Formatting.Buildable (Buildable (..))
 import Prelude hiding ((.))
@@ -185,4 +185,4 @@ instance (Buildable e, Buildable a) => Buildable (Either e a) where
   build (Right a) = build a
 
 buildValue :: Buildable a => a -> Maybe Value
-buildValue = parseValue . LazyText.unpack . toLazyText . build
+buildValue = parseValue . LazyText.unpack . Builder.toLazyText . build
