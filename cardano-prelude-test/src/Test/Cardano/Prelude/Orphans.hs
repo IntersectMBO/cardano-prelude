@@ -14,6 +14,8 @@ import Cardano.Prelude
 
 import qualified Crypto.Random as Rand
 
+import Prelude hiding ((.))
+
 import Test.QuickCheck (Gen)
 import qualified Test.QuickCheck as QC
 

@@ -25,11 +25,11 @@ assertIsLeftConstr ::
 assertIsLeftConstr expectedFailure = \case
   Left failure -> toConstr failure === expectedFailure
   Right res ->
-    withFrozenCallStack $ failWith Nothing (show $ sformat build res)
+    withFrozenCallStack $ failWith Nothing (Prelude.show $ sformat build res)
 
 assertIsRight :: (Buildable a, HasCallStack, MonadTest m) => Either a b -> m ()
 assertIsRight = \case
-  Left err -> withFrozenCallStack $ failWith Nothing (show $ sformat build err)
+  Left err -> withFrozenCallStack $ failWith Nothing (Prelude.show $ sformat build err)
   Right _ -> success
 
 assertIsJust :: (HasCallStack, MonadTest m) => Maybe a -> m ()
@@ -40,7 +40,7 @@ assertIsJust = \case
 assertIsNothing :: (Buildable a, HasCallStack, MonadTest m) => Maybe a -> m ()
 assertIsNothing = \case
   Nothing -> success
-  Just res -> withFrozenCallStack $ failWith Nothing (show $ sformat build res)
+  Just res -> withFrozenCallStack $ failWith Nothing (Prelude.show $ sformat build res)
 
 compareValueRight ::
   (Buildable a, Eq b, HasCallStack, MonadTest m, Show b) =>
@@ -48,5 +48,5 @@ compareValueRight ::
   Either a b ->
   m ()
 compareValueRight iVal eith = case eith of
-  Left err -> withFrozenCallStack $ failWith Nothing (show $ sformat build err)
+  Left err -> withFrozenCallStack $ failWith Nothing (Prelude.show $ sformat build err)
   Right fVal -> iVal === fVal

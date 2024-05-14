@@ -94,7 +94,7 @@ bsSize numElems = NumWords (5 + 2 + 2 + numElems `divRoundUp` wordSize)
 verifySize :: NumWords -> a -> Property
 verifySize (NumWords expected) !x =
   withTests 1 $ property $ do
-    annotate (show wordSize)
+    annotate (Prelude.show wordSize)
     sz <- liftIO $ computeHeapSize x
     sz === Right expected
 

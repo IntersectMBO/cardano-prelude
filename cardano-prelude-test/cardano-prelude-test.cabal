@@ -50,7 +50,6 @@ library
                     , text
                     , time
   default-language:   Haskell2010
-  default-extensions: NoImplicitPrelude
   ghc-options:        -Wall
 
   if (!flag(development))
@@ -78,7 +77,6 @@ test-suite prelude-tests
                     , hedgehog
                     , text
   default-language:   Haskell2010
-  default-extensions: NoImplicitPrelude
   ghc-options:        -threaded
                       -rtsopts
                       -Wall

@@ -23,7 +23,7 @@ where
 
 import Cardano.Prelude.Base
 
-import Data.Text (pack, unpack)
+import qualified Data.Text as Text
 import Data.Tree (Tree (..), drawTree, levels)
 import GHC.Exts.Heap (
   Box (..),
@@ -33,6 +33,7 @@ import GHC.Exts.Heap (
   asBox,
   getClosureData,
  )
+import Prelude hiding ((.))
 import System.Mem (performGC)
 
 -- | The depth of a 'Tree'.
@@ -61,7 +62,7 @@ data ClosureTreeOptions = ClosureTreeOptions
   deriving (Show)
 
 depth :: Tree a -> Int
-depth = length . levels
+depth = Cardano.Prelude.Base.length . levels
 
 isZeroOrNegativeTreeDepth :: TreeDepth -> Bool
 isZeroOrNegativeTreeDepth AnyDepth = False
@@ -70,10 +71,10 @@ isZeroOrNegativeTreeDepth (TreeDepth d)
   | otherwise = False
 
 renderClosure :: Closure -> Text
-renderClosure = show
+renderClosure = Text.pack . Prelude.show
 
 renderTree :: Tree a -> (a -> Text) -> Text
-renderTree tree renderA = pack $ drawTree (fmap (unpack . renderA) tree)
+renderTree tree renderA = Text.pack $ drawTree (fmap (Text.unpack . renderA) tree)
 
 -- | Given a Haskell expression, build a 'Tree' which reflects its heap object
 -- representation.

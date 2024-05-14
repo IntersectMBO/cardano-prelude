@@ -44,8 +44,9 @@ where
 
 import Cardano.Prelude
 
-import Control.Monad (fail)
 import qualified Data.Semigroup as Semigroup
+import qualified Data.Text as Text
+import Prelude hiding ((.))
 
 import qualified Test.Hspec as Hspec
 import Test.QuickCheck (Property, counterexample, property, (.&&.), (===))
@@ -63,31 +64,31 @@ qcIsJust Nothing = qcFail "expected Just, got Nothing"
 
 qcIsNothing :: Show a => Maybe a -> Property
 qcIsNothing Nothing = property True
-qcIsNothing (Just x) = qcFail ("expected Nothing, got Just (" <> show x <> ")")
+qcIsNothing (Just x) = qcFail ("expected Nothing, got Just (" <> Text.pack (Prelude.show x) <> ")")
 
 qcIsLeft :: Show b => Either a b -> Property
 qcIsLeft (Left _) = property True
-qcIsLeft (Right x) = qcFail ("expected Left, got Right (" <> show x <> ")")
+qcIsLeft (Right x) = qcFail ("expected Left, got Right (" <> Text.pack (Prelude.show x) <> ")")
 
 qcIsRight :: Show a => Either a b -> Property
 qcIsRight (Right _) = property True
-qcIsRight (Left x) = qcFail ("expected Right, got Left (" <> show x <> ")")
+qcIsRight (Left x) = qcFail ("expected Right, got Left (" <> Text.pack (Prelude.show x) <> ")")
 
 qcElem :: (Show a, Eq a, Show (t a), Foldable t) => a -> t a -> Property
 qcElem x xs =
-  counterexample ("expected " <> show x <> " to be in " <> show xs) $
+  counterexample ("expected " <> Prelude.show x <> " to be in " <> Prelude.show xs) $
     x
       `elem` xs
 
 qcNotElem :: (Show a, Eq a, Show (t a), Foldable t) => a -> t a -> Property
 qcNotElem x xs =
-  counterexample ("expected " <> show x <> " not to be in " <> show xs) $
+  counterexample ("expected " <> Prelude.show x <> " not to be in " <> Prelude.show xs) $
     x
       `notElem` xs
 
 -- | A property that is always false
 qcFail :: Text -> Property
-qcFail s = counterexample (toS s) False
+qcFail s = counterexample (Text.unpack s) False
 
 --------------------------------------------------------------------------------
 -- Monadic testing
@@ -104,7 +105,7 @@ assertProperty st text = unless st $ stopProperty text
 
 -- | Stop 'PropertyM' execution with given reason. The property will fail.
 stopProperty :: Monad m => Text -> PropertyM m a
-stopProperty msg = stop failed {reason = toS msg}
+stopProperty msg = stop failed {reason = Text.unpack msg}
 
 -- | Use 'stopProperty' if the value is 'Nothing' or return something
 -- it the value is 'Just'.
@@ -116,7 +117,7 @@ maybeStopProperty msg = \case
 -- | Split given list into chunks with size up to given value.
 -- TODO: consider using `sumEquals maxSize (length items)`
 splitIntoChunks :: Monad m => Word -> [a] -> PropertyM m [NonEmpty a]
-splitIntoChunks 0 _ = panic "splitIntoChunks: maxSize is 0"
+splitIntoChunks 0 _ = error "splitIntoChunks: maxSize is 0"
 splitIntoChunks maxSize items = do
   sizeMinus1 <- pick $ choose (0, maxSize - 1)
   let (chunk, rest) = splitAt (fromIntegral sizeMinus1 + 1) items
@@ -141,11 +142,11 @@ expectedOne desc = \case
 splitWord :: Word64 -> Word64 -> Gen [Word64]
 splitWord total parts
   | total < parts =
-      panic $
+      error $
         "splitWord: can't split "
-          <> show total
+          <> Prelude.show total
           <> " into "
-          <> show parts
+          <> Prelude.show parts
           <> " parts."
   | otherwise =
       map succ
@@ -166,7 +167,7 @@ sumEquals maxEl restSum = do
   (el :) <$> sumEquals maxEl (restSum - el)
 
 expectationError :: Text -> Hspec.Expectation
-expectationError = fail . toS
+expectationError = fail . Text.unpack
 
 --------------------------------------------------------------------------------
 -- Monoid/Semigroup laws

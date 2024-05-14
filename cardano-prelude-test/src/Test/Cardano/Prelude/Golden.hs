@@ -29,6 +29,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import Data.Text.Lazy.Builder (toLazyText)
 import Formatting.Buildable (build)
+import Prelude hiding ((.))
 import qualified Text.JSON.Canonical as Canonical
 
 import Hedgehog (
@@ -73,7 +74,7 @@ goldenTestCanonicalJSONDec x path = withFrozenCallStack $ do
   withTests 1 . property $ do
     bs <- liftIO (LB.readFile path)
     case Canonical.parseCanonicalJSON bs of
-      Left err -> failWith Nothing $ "could not parse: " <> show err
+      Left err -> failWith Nothing $ "could not parse: " <> Prelude.show err
       Right jsv -> case Canonical.fromJSON jsv of
         Left (schErr :: SchemaError) ->
           failWith Nothing $ LT.unpack $ toLazyText $ build schErr
@@ -85,7 +86,7 @@ goldenTestJSONDec ::
 goldenTestJSONDec x path = withFrozenCallStack $ withTests 1 . property $ do
   bs <- liftIO (LB.readFile path)
   case eitherDecode bs of
-    Left err -> failWith Nothing $ "could not decode: " <> show err
+    Left err -> failWith Nothing $ "could not decode: " <> Prelude.show err
     Right x' -> x === x'
 
 goldenTestJSON ::
@@ -97,7 +98,7 @@ goldenTestJSON x path = withFrozenCallStack $ withTests 1 . property $ do
   bs <- liftIO (LB.readFile path)
   encode x === bs
   case eitherDecode bs of
-    Left err -> failWith Nothing $ "could not decode: " <> show err
+    Left err -> failWith Nothing $ "could not decode: " <> Prelude.show err
     Right x' -> x === x'
 
 goldenTestJSONPretty ::
@@ -124,7 +125,7 @@ goldenTestJSONPretty x path =
             }
       encodePretty' defConfig' x === bs
       case eitherDecode bs of
-        Left err -> failWith Nothing $ "could not decode: " <> show err
+        Left err -> failWith Nothing $ "could not decode: " <> Prelude.show err
         Right x' -> x === x'
 
 -- | Text used for example values in a number of golden tests

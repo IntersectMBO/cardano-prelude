@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -20,10 +21,12 @@ where
 import Cardano.Prelude
 
 import Data.Aeson (FromJSON, ToJSON, decode, encode, fromJSON, toJSON)
-import qualified Data.Map as Map
-import Data.String (String, unlines)
+import Data.Map qualified as Map
+import Data.String (unlines)
 import Data.Text.Internal.Builder (toLazyText)
+import Data.Text.Lazy qualified as LazyText
 import Formatting.Buildable (Buildable (..))
+import Prelude hiding ((.))
 import System.IO (hSetEncoding, utf8)
 import qualified Text.JSON.Canonical as CanonicalJSON
 import Text.Show.Pretty (Value (..), parseValue)
@@ -165,21 +168,21 @@ trippingBuildable x enc dec =
             failWith Nothing $
               Data.String.unlines
                 [ "━━━ Original ━━━"
-                , show $ buildValue mx
+                , Prelude.show $ buildValue mx
                 , "━━━ Intermediate ━━━"
-                , show i
+                , Prelude.show i
                 , "━━━ Roundtrip ━━━"
-                , show $ buildValue my
+                , Prelude.show $ buildValue my
                 ]
         Just dif ->
           withFrozenCallStack
             $ failWith
               (Just $ Diff "━━━ " "- Original" "/" "+ Roundtrip" " ━━━" dif)
-            $ Data.String.unlines ["━━━ Intermediate ━━━", show i]
+            $ Data.String.unlines ["━━━ Intermediate ━━━", Prelude.show i]
 
 instance (Buildable e, Buildable a) => Buildable (Either e a) where
   build (Left e) = build e
   build (Right a) = build a
 
 buildValue :: Buildable a => a -> Maybe Value
-buildValue = parseValue . toS . toLazyText . build
+buildValue = parseValue . LazyText.unpack . toLazyText . build

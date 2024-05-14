@@ -44,6 +44,7 @@ import Formatting (Format, bprint, later)
 import qualified Formatting as F (build)
 import Formatting.Buildable (Buildable (build))
 import qualified GHC.Exts as Exts
+import Prelude hiding ((.))
 
 --------------------------------------------------------------------------------
 -- Base16

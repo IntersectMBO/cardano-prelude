@@ -26,7 +26,6 @@ library
   exposed-modules:    Cardano.Prelude
                       Data.Semigroup.Action
   other-modules:      Cardano.Prelude.Base
-                      Cardano.Prelude.Compat
                       Cardano.Prelude.Compat.ByteString.Short
                       Cardano.Prelude.Error
                       Cardano.Prelude.Formatting
@@ -38,6 +37,7 @@ library
                       Cardano.Prelude.Json.Parse
                       Cardano.Prelude.Microlens
                       Cardano.Prelude.Orphans
+                      Cardano.Prelude.Panic
                       Cardano.Prelude.Strict
 
   build-depends:      base                    >= 4.14       && < 5
@@ -47,18 +47,17 @@ library
                     , canonical-json          >= 0.6.0.1
                     , cborg
                     , containers
+                    , deepseq
                     , formatting
                     , ghc-heap
                     , ghc-prim
                     , integer-gmp
                     , microlens
                     , mtl
-                    , protolude
                     , tagged
                     , text
                     , time
   default-language:   Haskell2010
-  default-extensions: NoImplicitPrelude
   c-sources:          cbits/hashset.c
                       cbits/worklist.c
                       cbits/closure_size.c
