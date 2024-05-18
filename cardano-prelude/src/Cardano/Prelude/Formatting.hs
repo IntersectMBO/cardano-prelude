@@ -34,7 +34,7 @@ module Cardano.Prelude.Formatting (
 )
 where
 
-import Cardano.Prelude.Base
+import Cardano.Prelude.Base hiding (map)
 
 import qualified Data.ByteString.Base16 as B16
 import qualified Data.ByteString.Char8 as BS

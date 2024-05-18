@@ -18,7 +18,7 @@ module Test.Cardano.Prelude.Tripping (
 )
 where
 
-import Cardano.Prelude
+import Cardano.Prelude hiding (map)
 
 import Data.Aeson (FromJSON, ToJSON, decode, encode, fromJSON, toJSON)
 import Data.Map qualified as Map

@@ -42,7 +42,7 @@ module Test.Cardano.Prelude.QuickCheck.Property (
 )
 where
 
-import Cardano.Prelude
+import Cardano.Prelude hiding (map)
 
 import qualified Data.Semigroup as Semigroup
 import qualified Data.Text as Text

@@ -19,6 +19,7 @@ where
 
 import Cardano.Prelude.Base
 import Cardano.Prelude.Json.Parse (parseJSString)
+import Cardano.Prelude.Read (readEither)
 import Data.Fixed (E12, resolution)
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text

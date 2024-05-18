@@ -13,7 +13,7 @@ module Cardano.Prelude.GHC.Heap.Size (
   computeHeapSizeWorkList,
 ) where
 
-import Cardano.Prelude.Base hiding (Any)
+import Cardano.Prelude.Base hiding (Any, map)
 
 import Foreign.C.Types
 import Foreign.Marshal.Alloc
