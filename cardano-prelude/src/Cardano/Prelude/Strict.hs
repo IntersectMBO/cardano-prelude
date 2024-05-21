@@ -4,8 +4,6 @@ module Cardano.Prelude.Strict (
 )
 where
 
-import Cardano.Prelude.Base
-
 -- | Force all of the elements of a 'Foldable' to weak head normal form.
 --
 -- In order to ensure that all of the elements of a 'Foldable' are strict, we

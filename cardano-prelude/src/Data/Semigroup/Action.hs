@@ -6,8 +6,6 @@ module Data.Semigroup.Action (
 )
 where
 
-import Data.Semigroup (Semigroup, (<>))
-
 -- | Semigroup action.  It should satisfy:
 --
 -- @

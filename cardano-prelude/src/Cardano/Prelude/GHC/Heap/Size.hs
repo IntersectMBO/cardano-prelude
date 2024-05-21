@@ -13,7 +13,7 @@ module Cardano.Prelude.GHC.Heap.Size (
   computeHeapSizeWorkList,
 ) where
 
-import Cardano.Prelude.Base hiding (Any)
+import Cardano.Prelude.Base hiding (Any, map)
 
 import Foreign.C.Types
 import Foreign.Marshal.Alloc
@@ -49,7 +49,7 @@ toCountFailure n
   | n == cVISITED_FULL = Just $ VisitedFull
   | n == cOUT_OF_MEMORY = Just $ OutOfMemory
   | n >= cUNSUPPORTED_CLOSURE = Just $ UnsupportedClosure typ
-  | otherwise = panic "getCountFailure: impossible"
+  | otherwise = error "getCountFailure: impossible"
   where
     typ :: ClosureType
     typ = toEnum (fromIntegral (n - cUNSUPPORTED_CLOSURE))

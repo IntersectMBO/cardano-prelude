@@ -18,6 +18,8 @@ import Hedgehog (Gen)
 import qualified Hedgehog.Gen as Gen
 import qualified Hedgehog.Range as Range
 
+import Prelude hiding ((.))
+
 genBytes :: Int -> Gen ByteString
 genBytes n = Gen.bytes (Range.singleton n)
 

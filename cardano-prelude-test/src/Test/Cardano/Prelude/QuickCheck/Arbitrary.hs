@@ -22,7 +22,9 @@ import Cardano.Prelude
 
 import Data.ByteString (pack)
 import qualified Data.ByteString.Lazy as BL (ByteString, pack)
+import qualified Data.Text as Text
 import Formatting (build, sformat)
+import Prelude hiding ((.))
 import Test.QuickCheck (Arbitrary (..), Gen, listOf, scale, shuffle, vector)
 import Test.QuickCheck.Gen (unGen)
 import Test.QuickCheck.Instances.ByteString ()
@@ -57,10 +59,10 @@ instance Arbitrary a => Arbitrary (SmallGenerator a) where
 -- there's not enough elements.
 sublistN :: Int -> [a] -> Gen [a]
 sublistN n xs = do
-  let len = length xs
+  let len = Prelude.length xs
   if len < n
     then
-      panic $
+      error . Text.unpack $ 
         sformat
           ( "sublistN: requested "
               . build

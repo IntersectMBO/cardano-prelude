@@ -49,7 +49,7 @@ prop_Word8ListClosureTreeDepth =
             failure
           Just ct -> do
             annotate $ unpack (renderTree ct renderClosure)
-            depth ct === (length xs) + 1
+            depth ct === (Cardano.Prelude.length xs) + 1
 
 -- | Property: Specifying a 'TreeDepth' other than 'AnyDepth' should
 -- appropriately limit the maximum depth of the 'Closure' 'Tree' generated.
@@ -74,7 +74,7 @@ prop_ClosureTreeHasSpecifiedDepth = withTests 500 $ property $ do
     Just ct -> do
       annotate $ unpack (renderTree ct renderClosure)
       if depth ct < maxDepth
-        then depth ct === length xs + 1
+        then depth ct === Cardano.Prelude.length xs + 1
         else depth ct === maxDepth
 
 tests :: IO Bool

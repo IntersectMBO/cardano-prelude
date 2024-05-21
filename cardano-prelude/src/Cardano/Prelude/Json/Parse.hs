@@ -11,9 +11,10 @@ where
 
 import Cardano.Prelude.Base
 
-import Data.String (String)
+import qualified Data.Text as Text
 import Formatting (Format, build, formatToString, string)
 import Formatting.Buildable (Buildable)
+import Prelude hiding ((.))
 import Text.JSON.Canonical (
   JSValue (JSString),
   ReportSchemaErrors (expected),
@@ -31,11 +32,11 @@ parseJSString ::
   m a
 parseJSString parser = \case
   JSString str ->
-    either (report $ fromJSString str) pure . parser . toS $ fromJSString str
+    either (report $ fromJSString str) pure . parser . Text.pack $ fromJSString str
   val -> expectedButGotValue typeName val
   where
     typeName :: String
-    typeName = show $ typeRep (Proxy @a)
+    typeName = Prelude.show $ typeRep (Proxy @a)
 
     report :: String -> e -> m a
     report str err =

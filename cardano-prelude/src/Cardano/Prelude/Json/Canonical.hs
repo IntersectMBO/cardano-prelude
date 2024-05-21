@@ -19,7 +19,10 @@ where
 
 import Cardano.Prelude.Base
 import Cardano.Prelude.Json.Parse (parseJSString)
+import Cardano.Prelude.Read (readEither)
 import Data.Fixed (E12, resolution)
+import qualified Data.Text as Text
+import qualified Data.Text.Encoding as Text
 import Data.Time (NominalDiffTime, UTCTime)
 import Data.Time.Clock.POSIX (
   posixSecondsToUTCTime,
@@ -35,9 +38,9 @@ import Text.JSON.Canonical (
   ToJSON (toJSON),
  )
 
-import qualified Cardano.Prelude.Compat as I
 import qualified Data.ByteString.Lazy as LB
 import qualified Data.Text.Lazy.Builder as Builder
+import Prelude hiding ((.))
 import qualified Text.JSON.Canonical as CanonicalJSON
 
 data SchemaError = SchemaError
@@ -62,8 +65,8 @@ instance
   expected expec actual =
     throwError
       SchemaError
-        { seExpected = toS expec
-        , seActual = fmap toS actual
+        { seExpected = Text.pack expec
+        , seActual = fmap Text.pack actual
         }
 
 instance Monad m => ToJSON m Int32 where
@@ -76,13 +79,13 @@ instance Monad m => ToJSON m Word32 where
   toJSON = pure . JSNum . fromIntegral
 
 instance Monad m => ToJSON m Word64 where
-  toJSON = pure . JSString . CanonicalJSON.toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . Prelude.show
 
 instance Monad m => ToJSON m Integer where
-  toJSON = pure . JSString . CanonicalJSON.toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . Prelude.show
 
 instance Monad m => ToJSON m Natural where
-  toJSON = pure . JSString . CanonicalJSON.toJSString . show
+  toJSON = pure . JSString . CanonicalJSON.toJSString . Prelude.show
 
 -- | For backwards compatibility we convert this to seconds
 instance Monad m => ToJSON m UTCTime where
@@ -109,13 +112,13 @@ instance ReportSchemaErrors m => FromJSON m Word32 where
   fromJSON val = CanonicalJSON.expectedButGotValue "Word32" val
 
 instance ReportSchemaErrors m => FromJSON m Word64 where
-  fromJSON = parseJSString (I.readEither @Word64 @Text . toS)
+  fromJSON = parseJSString (readEither . Text.unpack)
 
 instance ReportSchemaErrors m => FromJSON m Integer where
-  fromJSON = parseJSString (I.readEither @Integer @Text . toS)
+  fromJSON = parseJSString (readEither . Text.unpack)
 
 instance MonadError SchemaError m => FromJSON m Natural where
-  fromJSON = parseJSString (I.readEither @Natural @Text . toS)
+  fromJSON = parseJSString (readEither . Text.unpack)
 
 instance MonadError SchemaError m => FromJSON m UTCTime where
   fromJSON = fmap (posixSecondsToUTCTime . fromIntegral) . fromJSON @_ @Int54
@@ -129,15 +132,15 @@ canonicalDecodePretty ::
   LB.ByteString ->
   Either Text a
 canonicalDecodePretty y = do
-  eVal <- first toS (CanonicalJSON.parseCanonicalJSON y)
-  first show (CanonicalJSON.fromJSON eVal :: Either SchemaError a)
+  eVal <- first Text.pack (CanonicalJSON.parseCanonicalJSON y)
+  first (Text.pack . Prelude.show) (CanonicalJSON.fromJSON eVal :: Either SchemaError a)
 
 canonicalEncodePretty ::
   forall a. CanonicalJSON.ToJSON Identity a => a -> LB.ByteString
 canonicalEncodePretty x =
   LB.fromStrict
-    . encodeUtf8
-    . toS
+    . Text.encodeUtf8
+    . Text.pack
     $ CanonicalJSON.prettyCanonicalJSON
     $ runIdentity
     $ CanonicalJSON.toJSON x

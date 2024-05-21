@@ -4,7 +4,6 @@
 
 module Cardano.Prelude.Microlens () where
 
-import Data.Functor ((<$>))
 import Lens.Micro.Internal (Field1 (..), Field2 (..), Field3 (..), Field4 (..), Field5 (..))
 
 instance Field1 (a, b, c, d, e, f) (a', b, c, d, e, f) a a' where

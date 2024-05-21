@@ -2,7 +2,6 @@ module Main (
   main,
 ) where
 
-import Cardano.Prelude
 import Test.Cardano.Prelude
 
 import qualified Test.Cardano.Prelude.GHC.Heap.NormalFormSpec

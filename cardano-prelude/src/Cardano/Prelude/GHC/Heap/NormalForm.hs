@@ -52,8 +52,6 @@ module Cardano.Prelude.GHC.Heap.NormalForm (
 )
 where
 
-import Cardano.Prelude.Base
-
 import GHC.Exts.Heap
 
 -- Everything is in normal form, unless it is a
