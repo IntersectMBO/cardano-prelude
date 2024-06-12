@@ -35,10 +35,22 @@
         # ... and construct a flake from the cabal.project file.
         # We use cabalProject' to ensure we don't build the plan for
         # all systems.
-        perSystemFlake = (nixpkgs.haskell-nix.cabalProject' rec {
+        perSystemFlake = (nixpkgs.haskell-nix.cabalProject' ({pkgs, lib, config, ...}: {
           src = ./.;
           name = "cardano-prelude";
-          compiler-nix-name = "ghc928";
+          compiler-nix-name = "ghc92";
+          flake = {
+            variants = {
+              ghc810.compiler-nix-name = lib.mkForce "ghc810";
+              ghc96.compiler-nix-name = lib.mkForce "ghc96";
+              ghc98.compiler-nix-name = lib.mkForce "ghc98";
+              ghc910.compiler-nix-name = lib.mkForce "ghc910";
+            };
+
+            # we also want cross compilation to windows.
+            crossPlatforms = p:
+              lib.optional (system == "x86_64-linux" && builtins.elem config.compiler-nix-name ["ghc8107" "ghc928"]) p.mingwW64;
+          };
 
           # CHaP input map, so we can find CHaP packages (needs to be more
           # recent than the index-state we set!). Can be updated with
@@ -48,11 +60,7 @@
           inputMap = {
             "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
           };
-        }).flake (
-          # we also want cross compilation to windows.
-          nixpkgs.lib.optionalAttrs (system == "x86_64-linux") {
-          crossPlatforms = p: [p.mingwW64];
-        });
+        })).flake {};
       in perSystemFlake
     ); in let pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
     # This is not ideal, it means this flake will not evaluate properly on

@@ -37,7 +37,7 @@ import Data.Either (Either(Left, Right))
 import Data.Function ((.))
 import Data.List (null, last, init, maximum, minimum, foldr1, foldl1, foldl1', (++))
 
-import GHC.Num ((-))
+import GHC.Enum (pred)
 import GHC.Show (show)
 
 liftMay :: (a -> Bool) -> (a -> b) -> (a -> Maybe b)
@@ -131,8 +131,8 @@ at_ ys o
   | otherwise = f o ys
   where
     f 0 (x:_) = Right x
-    f i (_:xs) = f (i-1) xs
-    f i [] = Left ("index too large, index=" ++ show o ++ ", length=" ++ show (o-i))
+    f i (_:xs) = f (pred i) xs
+    f i [] = Left ("index too large, index=" ++ show o ++ ", length=" ++ show (pred i))
 
 atMay :: [a] -> Int -> Maybe a
 atMay xs i = case xs `at_` i of
