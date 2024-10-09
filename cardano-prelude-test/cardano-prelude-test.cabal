@@ -38,7 +38,7 @@ library
                     , canonical-json          >= 0.6.0.1
                     , cardano-prelude
                     , containers
-                    , cryptonite
+                    , crypton
                     , formatting
                     , hedgehog
                     , hspec
