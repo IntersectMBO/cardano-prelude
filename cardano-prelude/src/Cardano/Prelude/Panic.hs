@@ -10,12 +10,11 @@ module Cardano.Prelude.Panic (
 
 import Control.Exception (Exception, throw)
 import Data.Text (Text)
-import Data.Typeable (Typeable)
 import GHC.Stack (HasCallStack)
 
 -- | Uncatchable exceptions thrown and never caught.
 newtype FatalError = FatalError { fatalErrorMessage :: Text }
-  deriving (Show, Typeable)
+  deriving (Show)
 
 instance Exception FatalError
 
