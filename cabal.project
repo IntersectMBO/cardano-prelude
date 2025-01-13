@@ -1,8 +1,20 @@
 -- See CONTRIBUTING for Nix commands you need to run if you change it:
-index-state: 2024-06-12T03:57:48Z
+index-state: 2025-01-07T18:12:02Z
 
 packages:
   cardano-prelude
   cardano-prelude-test
 
 test-show-details: direct
+
+if impl (ghc >= 9.12)
+  allow-newer:
+    -- Stuck on `cabal-3.14` issues and recalcitrant maintainers
+    -- https://github.com/haskell/aeson/issues/1124
+    , aeson:ghc-prim
+    , aeson:template-haskell
+
+    -- Stuck on `cabal-3.14` and unresponsive maintainers
+    -- https://github.com/well-typed/cborg/pull/339
+    , cborg:base
+    , cborg:ghc-prim
