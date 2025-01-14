@@ -66,10 +66,23 @@
     # This is not ideal, it means this flake will not evaluate properly on
     # anything but linux :-/ However, CI requires a top-level required job,
     # for now. And not one per system.
-    in pkgs.lib.recursiveUpdate flake {
+    in pkgs.lib.recursiveUpdate (removeAttrs flake ["checks"]) {
       # add a required job, that's basically all hydraJobs.
       hydraJobs = pkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates
         { ciJobs = flake.hydraJobs; };
+
+      checks = let
+        # https://github.com/numtide/flake-utils/issues/121#issuecomment-2589899217
+        recurseIntoDeepAttrs = attrs:
+          pkgs.lib.recurseIntoAttrs (pkgs.lib.mapAttrs (_: v:
+            if builtins.typeOf v == "set" && !pkgs.lib.isDerivation v
+            then recurseIntoDeepAttrs v
+            else v
+          ) attrs);
+      in pkgs.lib.genAttrs supportedSystems (system:
+        inputs.flake-utils.lib.flattenTree (recurseIntoDeepAttrs flake.hydraJobs.${system})
+        // pkgs.callPackages inputs.iohkNix.utils.ciJobsAggregates { ciJobs = flake.hydraJobs.${system}; }
+      );
     };
 
   nixConfig = {
@@ -78,10 +91,12 @@
       # drop this, once we stop needing it; when we have stable aarch64-darwin
       # builds
       "https://cache.zw3rk.com"
+      "https://cache.garnix.io"
     ];
     extra-trusted-public-keys = [
       "hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ="
       "loony-tools:pr9m4BkM/5/eSTZlkQyRt57Jz7OMBxNSUiMC4FkcNfk="
+      "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
     ];
     allow-import-from-derivation = true;
   };
