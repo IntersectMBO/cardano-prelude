@@ -57,7 +57,7 @@
 
             # we also want cross compilation to windows.
             crossPlatforms = p:
-              lib.optional (system == "x86_64-linux" && !builtins.elem config.compiler-nix-name ["ghc8107" "ghc928"]) p.ucrt64;
+              lib.optional (system == "x86_64-linux" && !builtins.elem config.compiler-nix-name ["ghc8107" "ghc928" "ghc984" "ghc9102"]) p.ucrt64;
           };
 
           # CHaP input map, so we can find CHaP packages (needs to be more
