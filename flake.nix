@@ -1,6 +1,13 @@
 {
   inputs = {
-    haskellNix.url = "github:input-output-hk/haskell.nix";
+    hackageNix = {
+      url = "github:input-output-hk/hackage.nix";
+      flake = false;
+    };
+    haskellNix = {
+      url = "github:input-output-hk/haskell.nix";
+      inputs.hackage.follows = "hackageNix";
+    };
     nixpkgs.follows = "haskellNix/nixpkgs-unstable";
     iohkNix.url = "github:input-output-hk/iohk-nix";
     flake-utils.url = "github:hamishmack/flake-utils/hkm/nested-hydraJobs";
@@ -19,8 +26,7 @@
       supportedSystems = [
         "x86_64-linux"
         "x86_64-darwin"
-        # not supported on ci.iog.io right now
-        #"aarch64-linux"
+        "aarch64-linux"
         "aarch64-darwin"
        ]; in
     let flake = inputs.flake-utils.lib.eachSystem supportedSystems (system:
@@ -38,18 +44,20 @@
         perSystemFlake = (nixpkgs.haskell-nix.cabalProject' ({pkgs, lib, config, ...}: {
           src = ./.;
           name = "cardano-prelude";
-          compiler-nix-name = "ghc92";
+          compiler-nix-name = "ghc96";
           flake = {
-            variants = {
+            variants = lib.optionalAttrs (builtins.elem system ["x86_64-linux" "aarch64-linux"]) {
               ghc810.compiler-nix-name = lib.mkForce "ghc810";
-              ghc96.compiler-nix-name = lib.mkForce "ghc96";
+              ghc96.compiler-nix-name = lib.mkForce "ghc92";
+            } // {
               ghc98.compiler-nix-name = lib.mkForce "ghc98";
               ghc910.compiler-nix-name = lib.mkForce "ghc910";
+              ghc912.compiler-nix-name = lib.mkForce "ghc912";
             };
 
             # we also want cross compilation to windows.
             crossPlatforms = p:
-              lib.optional (system == "x86_64-linux" && builtins.elem config.compiler-nix-name ["ghc8107" "ghc928"]) p.mingwW64;
+              lib.optional (system == "x86_64-linux" && !builtins.elem config.compiler-nix-name ["ghc8107" "ghc928" "ghc984" "ghc9102"]) p.ucrt64;
           };
 
           # CHaP input map, so we can find CHaP packages (needs to be more
@@ -60,6 +68,15 @@
           inputMap = {
             "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
           };
+
+          modules = [
+            # On Windows cross-compile a `basement` hsc2hs file generates a pointer to int
+            # conversion error:
+            #   Size.hsc:126:30: error: initialization of ‘long long int’ from ‘void *’ makes integer from pointer without a cast []
+            ({pkgs, ...}: lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
+              packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
+            })
+          ];
         })).flake {};
       in perSystemFlake
     ); in let pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
