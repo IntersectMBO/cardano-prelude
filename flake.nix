@@ -69,14 +69,14 @@
             "https://input-output-hk.github.io/cardano-haskell-packages" = inputs.CHaP;
           };
 
-          modules = [{
+          modules = [
             # On Windows cross-compile a `basement` hsc2hs file generates a pointer to int
             # conversion error:
             #   Size.hsc:126:30: error: initialization of ‘long long int’ from ‘void *’ makes integer from pointer without a cast []
             ({pkgs, ...}: lib.mkIf pkgs.stdenv.hostPlatform.isWindows {
               packages.basement.configureFlags = [ "--hsc2hs-option=--cflag=-Wno-int-conversion" ];
             })
-          }];
+          ];
         })).flake {};
       in perSystemFlake
     ); in let pkgs = inputs.nixpkgs.legacyPackages.x86_64-linux;
