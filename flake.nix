@@ -46,9 +46,10 @@
           name = "cardano-prelude";
           compiler-nix-name = "ghc96";
           flake = {
-            variants = {
+            variants = lib.optionalAttrs (builtins.elem system ["x86_64-linux" "aarch64-linux"]) {
               ghc810.compiler-nix-name = lib.mkForce "ghc810";
               ghc96.compiler-nix-name = lib.mkForce "ghc92";
+            } // {
               ghc98.compiler-nix-name = lib.mkForce "ghc98";
               ghc910.compiler-nix-name = lib.mkForce "ghc910";
               ghc912.compiler-nix-name = lib.mkForce "ghc912";
