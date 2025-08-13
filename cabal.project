@@ -1,5 +1,5 @@
 -- See CONTRIBUTING for Nix commands you need to run if you change it:
-index-state: 2025-07-13T23:10:26Z
+index-state: 2025-08-12T06:40:50Z
 
 packages:
   cardano-prelude
@@ -7,9 +7,3 @@ packages:
 
 test-show-details: direct
 
-if impl (ghc >= 9.12)
-  allow-newer:
-    -- Stuck on `cabal-3.14` and unresponsive maintainers
-    -- https://github.com/well-typed/cborg/pull/339
-    , cborg:base
-    , cborg:ghc-prim
