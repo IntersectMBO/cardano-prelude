@@ -1,5 +1,5 @@
 -- See CONTRIBUTING for Nix commands you need to run if you change it:
-index-state: 2025-08-12T06:40:50Z
+index-state: 2025-08-31T23:48:41Z
 
 packages:
   cardano-prelude
@@ -7,3 +7,87 @@ packages:
 
 test-show-details: direct
 
+if impl (ghc >= 9.14)
+  allow-newer:
+    , OneTuple:base
+    , QuickCheck:base
+    , aeson:bytestring
+    , aeson:containers
+    , aeson:data-fix
+    , aeson:ghc-prim
+    , aeson:indexed-traversable
+    , aeson:semialign
+    , aeson:template-haskell
+    , aeson:these
+    , aeson:time
+    , aeson:time-compat
+    , aeson:witherable
+    , assoc:base
+    , async:base
+    , bifunctors:template-haskell
+    , binary:containers
+    , boring:base
+    , canonical-json:containers
+    , cardano-prelude:aeson
+    , cborg:base
+    , cborg:containers
+    , constraints:boring
+    , data-fix:base
+    , filepath:base
+    , filepath:bytestring
+    , generically:base
+    , ghc-heap:containers
+    , hashable:base
+    , hashable:containers
+    , hashable:ghc-bignum
+    , hedgehog:async
+    , hedgehog:bytestring
+    , hedgehog:lifted-async
+    , hedgehog:template-haskell
+    , hedgehog:time
+    , hsc2hs:base
+    , indexed-traversable:base
+    , indexed-traversable:containers
+    , indexed-traversable-instances:base
+    , integer-conversion:base
+    , integer-logarithms:base
+    , integer-logarithms:ghc-bignum
+    , lifted-async:base
+    , primitive:base
+    , process:base
+    , quickcheck-instances:OneTuple
+    , quickcheck-instances:QuickCheck
+    , quickcheck-instances:array
+    , quickcheck-instances:base
+    , quickcheck-instances:bytestring
+    , quickcheck-instances:containers
+    , scientific:base
+    , scientific:containers
+    , scientific:hashable
+    , scientific:template-haskell
+    , semialign:base
+    , semialign:containers
+    , semigroupoids:bifunctors
+    , splitmix:base
+    , tagged:base
+    , tagged:template-haskell
+    , text:array
+    , text:base
+    , text:bytestring
+    , text:ghc-prim
+    , text:template-haskell
+    , text-iso8601:time
+    , text-short:base
+    , text-short:template-haskell
+    , th-abstraction:template-haskell
+    , th-compat:template-haskell
+    , these:base
+    , time:base
+    , time:template-haskell
+    , time-compat:base
+    , time-compat:time
+    , transformers:base
+    , unix:base
+    , unordered-containers:template-haskell
+    , uuid-types:template-haskell
+    , witherable:containers
