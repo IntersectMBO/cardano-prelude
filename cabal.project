@@ -1,5 +1,5 @@
 -- See CONTRIBUTING for Nix commands you need to run if you change it:
-index-state: 2025-08-31T23:48:41Z
+index-state: 2025-09-28T23:20:19Z
 
 packages:
   cardano-prelude
@@ -7,6 +7,7 @@ packages:
 
 test-show-details: direct
 
+-- cabal-allow-newer
 if impl (ghc >= 9.14)
   allow-newer:
     , OneTuple:base
@@ -29,20 +30,19 @@ if impl (ghc >= 9.14)
     , boring:base
     , canonical-json:containers
     , cardano-prelude:aeson
+    , cardano-prelude:canonical-json
     , cborg:base
     , cborg:containers
     , constraints:boring
     , data-fix:base
     , filepath:base
-    , filepath:bytestring
     , generically:base
     , ghc-heap:containers
     , hashable:base
     , hashable:containers
     , hashable:ghc-bignum
     , hedgehog:async
-    , hedgehog:bytestring
-    , hedgehog:lifted-async
+    , hedgehog:deepseq
     , hedgehog:template-haskell
     , hedgehog:time
     , hsc2hs:base
@@ -52,7 +52,6 @@ if impl (ghc >= 9.14)
     , integer-conversion:base
     , integer-logarithms:base
     , integer-logarithms:ghc-bignum
-    , lifted-async:base
     , primitive:base
     , process:base
     , quickcheck-instances:OneTuple
@@ -83,6 +82,7 @@ if impl (ghc >= 9.14)
     , th-compat:template-haskell
     , these:base
     , time:base
+    , time:deepseq
     , time:template-haskell
     , time-compat:base
     , time-compat:time

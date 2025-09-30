@@ -61,7 +61,9 @@ library
                     , ghc-heap
                     , ghc-prim
                     , integer-gmp
-                    , microlens
+                    -- Version 0.5 has modified Lens.Micro.Internal which breaks
+                    -- building of the project.
+                    , microlens               < 0.5
                     , mtl
                     , stm
                     , tagged
