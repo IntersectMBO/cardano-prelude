@@ -63,7 +63,7 @@ library
                     , integer-gmp
                     -- Version 0.5 has modified Lens.Micro.Internal which breaks
                     -- building of the project.
-                    , microlens               < 0.5
+                    , microlens
                     , mtl
                     , stm
                     , tagged
